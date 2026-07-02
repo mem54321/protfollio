@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رونق همدان للأثاث - حيث تلتقي الفخامة بالأصالة</title>
+    <meta name="description"
+        content="متجر رونق همدان لبيع الأثاث الفاخر في اليمن. غرف نوم، كنب، ستائر، طاولات ومفروشات بأفضل الأسعار.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Global Loader -->
+    <div id="globalLoader" class="global-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <img src="img/logo.jpg" alt="شعار" class="logo-img"> رونق <span>همدان</span>
+        </a>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="ابحث عن منتج...">
+            <button class="nav-icons" style="background:none; border:none"><i class="fas fa-search"></i></button>
+        </div>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">الرئيسية</a></li>
+            <li><a href="shop.html">المتجر</a></li>
+            <li><a href="about.html">من نحن</a></li>
+            <li><a href="contact.html">اتصل بنا</a></li>
+
+        </ul>
+
+        <div class="nav-icons">
+            <a href="login.html"><i class="far fa-user"></i></a>
+            <a href="wishlist.html"><i class="far fa-heart"></i></a>
+            <a href="cart.html" style="position: relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1><span style="color: #cccccc;">رونق همدان</span>.. حيث تلتقي الفخامة بالأصالة</h1>
+            <p>في متجرنا، نحن لا نبيع الأثاث فقط، بل نصنع تفاصيل تمنح منزلك أناقة خاصة. اخترنا لك قطعاً فريدة تجمع بين
+                التصميم الفاخر والجودة العالية لتناسب ذوقك الرفيع.</p>
+            <a href="shop.html" class="btn-primary">تسوق الآن</a>
+        </div>
+    </header>
+
+    <!-- Categories Section -->
+    <section class="categories">
+
+        <div class="category-grid" id="categoryGrid">
+            <!-- Categories will be injected here via JS -->
+        </div>
+    </section>
+
+    
+    <!-- Offers & Sale Section (With Countdown) -->
+    <section class="products" style="background: #fff8f8;">
+        <h2 class="section-title">🔥 عروض خاصة 🔥</h2>
+        <div id="countdown" style="text-align: center; margin-bottom: 20px; font-size: 1.5rem; font-weight: bold; color: var(--primary-color);">
+            ينتهي العرض خلال: <span id="timer">23:59:59</span>
+        </div>
+        <div class="product-grid" id="saleProducts">
+            <!-- Products will be injected here via JS -->
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="products">
+        <h2 class="section-title">المنتجات المميزة</h2>
+        <div class="product-grid" id="featuredProducts">
+            <!-- Products will be injected here via JS -->
+        </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section class="products" style="background-color: var(--white);">
+        <h2 class="section-title">وصل حديثاً</h2>
+        <div class="product-grid" id="newProducts">
+            <!-- Products will be injected here via JS -->
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="shop.html" class="btn-secondary">عرض كل المنتجات</a>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>رونق همدان</h3>
+                <p>متجر إلكتروني رائد في بيع الأثاث المنزلي الفاخر في اليمن. نقدم تشكيلة واسعة من غرف النوم، الكنب،
+                    والستائر بجودة عالية وتصاميم عصرية.</p>
+                <div style="display: flex; gap: 15px; margin-top: 20px; font-size: 1.5rem;">
+                    <a href="https://www.facebook.com/rong_hamd1" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/rong_hamd1" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/967771219034" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>روابط سريعة</h3>
+                <ul>
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="shop.html">المتجر</a></li>
+                    <li><a href="about.html">من نحن</a></li>
+                    <li><a href="contact.html">تواصل معنا</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h3>تواصل معنا</h3>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> صنعاء، اليمن</li>
+                    <li><i class="fas fa-phone"></i> +967 771219034</li>
+                    <li><i class="fas fa-envelope"></i> info@rawnaq-hamdan.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 جميع الحقوق محفوظة لمتجر رونق همدان للأثاث.</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">تصميم وتطوير: مرام الطرماح | واتساب: <a
+                    href="https://wa.me/967779965992" style="color: var(--secondary-color);" dir="ltr">+967779965992</a>
+                | البريد الإلكتروني: <a href="mailto:hussinmemo33@gmail.com"
+                    style="color: var(--secondary-color);">hussinmemo33@gmail.com</a></p>
+        </div>
+    </footer>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+
+    <!-- Floating Buttons -->
+    <a href="https://wa.me/967771219034" target="_blank" class="float-whatsapp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <button id="backToTop" class="float-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+</body>
+
+</html>
