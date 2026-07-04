@@ -230,17 +230,47 @@ window.viewOrderDetails = (orderId) => {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    let details = `طلب رقم: ${order.id}\n`;
-    details += `العميل: ${order.customerName}\n`;
-    details += `الهاتف: ${order.customerPhone}\n`;
-    details += `العنوان: ${order.customerAddress}\n\n`;
-    details += `المنتجات:\n`;
-    order.items.forEach(item => {
-        details += `- ${item.name} (x${item.quantity})\n`;
-    });
-    details += `\nالإجمالي: ${formatPrice(order.total)}`;
+    document.getElementById('modalOrderTitle').innerText = `تفاصيل الطلب #${order.id}`;
 
-    alert(details);
+    let html = `
+        <div class="order-info-grid">
+            <div><strong><i class="fas fa-user"></i> العميل:</strong> ${order.customerName}</div>
+            <div><strong><i class="fas fa-phone"></i> الهاتف:</strong> <a href="tel:${order.customerPhone}" style="color:var(--primary-color); text-decoration:none;" dir="ltr">${order.customerPhone}</a></div>
+            <div style="grid-column: 1 / -1;"><strong><i class="fas fa-map-marker-alt"></i> العنوان:</strong> ${order.customerAddress || 'غير محدد'}</div>
+            <div><strong><i class="fas fa-credit-card"></i> الدفع:</strong> ${order.paymentMethod}</div>
+            <div><strong><i class="fas fa-calendar-alt"></i> التاريخ:</strong> ${new Date(order.date).toLocaleDateString('ar-YE')}</div>
+        </div>
+        <h4 style="margin-bottom: 15px; color: var(--dark-gray); border-bottom: 2px solid #eee; padding-bottom: 5px;">المنتجات المطلوبة</h4>
+        <div style="margin-bottom: 20px;">
+    `;
+
+    order.items.forEach(item => {
+        // Construct product URL
+        const productUrl = `product.html?id=${item.id}`;
+        html += `
+            <div class="order-item-row">
+                <a href="${productUrl}" target="_blank" class="order-item-link">
+                    <i class="fas fa-link"></i> ${item.name}
+                </a>
+                <span style="font-size: 0.95rem; font-weight: bold;">الكمية: ${item.quantity}</span>
+            </div>
+        `;
+    });
+
+    html += `
+        </div>
+        <div style="background: var(--dark-gray); color: white; padding: 15px 20px; border-radius: 8px; font-size: 1.2rem; display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <strong>الإجمالي الكلي:</strong>
+            <span style="color: var(--secondary-color); font-weight: bold; font-size: 1.4rem;">${formatPrice(order.total)}</span>
+        </div>
+    `;
+
+    document.getElementById('modalOrderBody').innerHTML = html;
+    document.getElementById('orderModal').style.display = 'flex';
+};
+
+window.closeOrderModal = () => {
+    document.getElementById('orderModal').style.display = 'none';
 };
 
 document.addEventListener('DOMContentLoaded', initAdmin);

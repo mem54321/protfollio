@@ -105,14 +105,16 @@ window.sendOrderWhatsApp = () => {
     message += `• العنوان: ${address}\n\n`;
     message += `📦 *المنتجات المطلوبة:*\n`;
 
-    // Build base URL - works both locally and on hosting
-    const isHosted = window.location.protocol === 'https:' || window.location.protocol === 'http:';
-    const baseUrl = isHosted
-        ? window.location.origin + window.location.pathname.replace('cart.html', '')
-        : 'https://ronag-hamdan.netlify.app/';
-
     cartItemsDetails.forEach(item => {
-        const productLink = `${baseUrl}product.html?id=${item.id}`;
+        // Build robust URL that works on Netlify without .html and locally
+        let productLink = '';
+        try {
+            productLink = new URL(`product.html?id=${item.id}`, window.location.href).href;
+        } catch(e) {
+            // Fallback if URL fails
+            productLink = `https://ronaqhamdan.netlify.app/product.html?id=${item.id}`;
+        }
+        
         message += `\n━━━━━━━━━━━━━━━\n`;
         message += `🪑 *${item.name}*\n`;
         message += `• الكمية: ${item.quantity} قطعة\n`;

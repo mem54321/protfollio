@@ -137,6 +137,10 @@
     </div>
 
     <script>
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+
         function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('email').value;

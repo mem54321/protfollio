@@ -124,6 +124,10 @@
 
     <script src="js/db.js"></script>
     <script>
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('regName').value;
