@@ -164,22 +164,43 @@
         </div>
 
         <div class="contact-form">
-            <h3 style="margin-bottom: 20px; color: var(--primary-color);">إرسال رسالة</h3>
-            <form onsubmit="alert('تم إرسال رسالتك بنجاح! سنقوم بالرد عليك قريباً.'); event.preventDefault();">
+            <h3 style="margin-bottom: 20px; color: var(--primary-color);">📩 إرسال رسالة مباشرة عبر واتساب</h3>
+            <p style="margin-bottom: 20px; color: #666; font-size: 0.95rem;">📱 سيتم فتح واتساب مع رسالتك جاهزة للإرسال مباشرة لفريق المبيعات!</p>
+            <form onsubmit="sendContactWhatsApp(event)">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="الاسم الكامل" required>
+                    <input type="text" id="contactName" class="form-control" placeholder="الاسم الكامل *" required>
                 </div>
                 <div class="form-group">
-                    <input type="tel" class="form-control" placeholder="رقم الهاتف" required>
+                    <input type="tel" id="contactPhone" class="form-control" placeholder="رقم الهاتف *" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" class="form-control" placeholder="البريد الإلكتروني">
+                    <input type="email" id="contactEmail" class="form-control" placeholder="البريد الإلكتروني (اختياري)">
                 </div>
                 <div class="form-group">
-                    <textarea class="form-control" rows="5" placeholder="اكتب رسالتك هنا..." required></textarea>
+                    <textarea id="contactMessage" class="form-control" rows="5" placeholder="اكتب رسالتك هنا..." required></textarea>
                 </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">إرسال الرسالة</button>
+                <button type="submit" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.1rem; padding: 15px;">
+                    <i class="fab fa-whatsapp"></i> إرسال عبر واتساب
+                </button>
             </form>
+            <script>
+                function sendContactWhatsApp(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('contactName').value.trim();
+                    const phone = document.getElementById('contactPhone').value.trim();
+                    const email = document.getElementById('contactEmail').value.trim();
+                    const message = document.getElementById('contactMessage').value.trim();
+
+                    let wa = '📩 *رسالة جديدة من موقع رونق همدان*\n\n';
+                    wa += `👤 *الاسم:* ${name}\n`;
+                    wa += `📱 *الهاتف:* ${phone}\n`;
+                    if (email) wa += `📧 *البريد:* ${email}\n`;
+                    wa += `\n💬 *الرسالة:*\n${message}`;
+
+                    const url = `https://wa.me/967771219034?text=${encodeURIComponent(wa)}`;
+                    window.open(url, '_blank');
+                }
+            </script>
         </div>
     </div>
 

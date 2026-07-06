@@ -279,8 +279,35 @@
                 </div>
                 <div class="form-group">
                     <label>العنوان بالتفصيل</label>
-                    <textarea id="custAddress" class="form-control" rows="3" placeholder="المدينة، الحي، الشارع..."
+                    <textarea id="custAddress" class="form-control" rows="2" placeholder="الحي، الشارع..."
                         required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>المحافظة <span style="color:red;">*</span></label>
+                    <select id="custGovernorate" class="form-control" required>
+                        <option value="">-- اختر المحافظة --</option>
+                        <option value="صنعاء (العاصمة)">صنعاء (العاصمة) 🏙️</option>
+                        <option value="عدن">عدن</option>
+                        <option value="تعز">تعز</option>
+                        <option value="إب">إب</option>
+                        <option value="الحديدة">الحديدة</option>
+                        <option value="حضرموت">حضرموت</option>
+                        <option value="مأرب">مأرب</option>
+                        <option value="ذمار">ذمار</option>
+                        <option value="صعدة">صعدة</option>
+                        <option value="البيضاء">البيضاء</option>
+                        <option value="حجة">حجة</option>
+                        <option value="الجوف">الجوف</option>
+                        <option value="المحويت">المحويت</option>
+                        <option value="ريمة">ريمة</option>
+                        <option value="شبوة">شبوة</option>
+                        <option value="المهرة">المهرة</option>
+                        <option value="أبين">أبين</option>
+                        <option value="لحج">لحج</option>
+                        <option value="الضالع">الضالع</option>
+                        <option value="عمران">عمران</option>
+                        <option value="سقطرى">سقطرى</option>
+                    </select>
                 </div>
                 <!-- خيار 1: واتساب -->
                 <button class="btn-whatsapp" onclick="sendOrderWhatsApp()">

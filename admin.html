@@ -307,7 +307,7 @@
         });
 
         // Simple Admin Protection
-        const adminPass = "614885mem"; // يمكنكِ تغيير كلمة المرور من هنا
+        const adminPass = "12345mem"; // يمكنكِ تغيير كلمة المرور من هنا
         const enteredPass = prompt("الرجاء إدخال كلمة مرور المدير للدخول إلى لوحة التحكم:");
 
         if (enteredPass !== adminPass) {
@@ -389,19 +389,58 @@
                             <label>نسبة الخصم (%)</label>
                             <input type="number" id="prodDiscount" class="form-control" value="0">
                         </div>
+
+                        <!-- Image Upload from Device -->
                         <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>روابط الصور (يمكنك إضافة عدة روابط، كل رابط في سطر منفصل)</label>
-                            <textarea id="prodImages" class="form-control" rows="3"
-                                placeholder="img/a.jpg&#10;img/b.jpg&#10;img/c.jpg" required></textarea>
+                            <label>📷 رفع صور المنتج من الجهاز (يمكن تحديد أكثر من صورة)</label>
+                            <input type="file" id="prodImagesUpload" class="form-control" accept="image/*" multiple
+                                onchange="previewImages(this)" style="padding: 8px;">
+                            <div id="imagesPreviews" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:10px;"></div>
+                            <!-- Fallback for existing URLs -->
+                            <details style="margin-top:10px;">
+                                <summary style="cursor:pointer; color:#666; font-size:0.85rem;">أو أدخل روابط URL يدوياً (اختياري)</summary>
+                                <textarea id="prodImages" class="form-control" rows="2"
+                                    placeholder="img/a.jpg&#10;img/b.jpg" style="margin-top:8px;"></textarea>
+                            </details>
                         </div>
+
+                        <!-- Video Upload -->
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>🎬 رفع فيديو المنتج (اختياري - حد أقصى 1.5 ميجابايت)</label>
+                            <input type="file" id="prodVideoUpload" class="form-control" accept="video/*"
+                                onchange="previewVideo(this)" style="padding: 8px;">
+                            <div id="videoPreview" style="margin-top:10px;"></div>
+                            <input type="hidden" id="prodVideoData">
+                        </div>
+
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label>وصف المنتج</label>
                             <textarea id="prodDesc" class="form-control" rows="3" required></textarea>
                         </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="prodFeatured"> مميز (يظهر في الرئيسية)
+
+                        <!-- Position & Display Controls -->
+                        <div class="form-group" style="grid-column: 1 / -1; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+                            <label style="font-weight: bold; font-size: 1rem; display: block; margin-bottom: 12px; color: var(--dark-gray);">
+                                🎯 التحكم في موضع عرض المنتج
                             </label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:#f9f9f9; padding:8px 12px; border-radius:6px; border:1px solid #eee;">
+                                    <input type="checkbox" id="prodFeatured"> 
+                                    <span>⭐ مميز (يظهر في قسم المنتجات المميزة)</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:#f9f9f9; padding:8px 12px; border-radius:6px; border:1px solid #eee;">
+                                    <input type="checkbox" id="prodOnSale"> 
+                                    <span>🔥 عرض خاص (يظهر في قسم العروض)</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:#f9f9f9; padding:8px 12px; border-radius:6px; border:1px solid #eee;">
+                                    <input type="checkbox" id="prodIsNew"> 
+                                    <span>🆕 وصل حديثاً (يظهر في قسم الجديد)</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:#f9f9f9; padding:8px 12px; border-radius:6px; border:1px solid #eee;">
+                                    <input type="checkbox" id="prodShowNewBadge"> 
+                                    <span>🏷️ إظهار شارة "جديد" فوق المنتج</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div style="margin-top: 20px;">
