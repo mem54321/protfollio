@@ -203,7 +203,8 @@ const loadOrders = () => {
                     </select>
                 </td>
                 <td>
-                    <button class="action-btn edit-btn" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn edit-btn" onclick="viewOrderDetails('${order.id}')" title="عرض التفاصيل"><i class="fas fa-eye"></i></button>
+                    <button class="action-btn del-btn" onclick="deleteOrder('${order.id}')" title="حذف الطلب"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>
         `;
@@ -236,7 +237,8 @@ window.viewOrderDetails = (orderId) => {
         <div class="order-info-grid">
             <div><strong><i class="fas fa-user"></i> العميل:</strong> ${order.customerName}</div>
             <div><strong><i class="fas fa-phone"></i> الهاتف:</strong> <a href="tel:${order.customerPhone}" style="color:var(--primary-color); text-decoration:none;" dir="ltr">${order.customerPhone}</a></div>
-            <div style="grid-column: 1 / -1;"><strong><i class="fas fa-map-marker-alt"></i> العنوان:</strong> ${order.customerAddress || 'غير محدد'}</div>
+            <div><strong><i class="fas fa-map-marker-alt"></i> المحافظة:</strong> <span style="background:#fff3cd; color:#856404; padding:2px 10px; border-radius:10px; font-weight:bold;">${order.customerGovernorate || 'غير محددة'}</span></div>
+            <div style="grid-column: 1 / -1;"><strong><i class="fas fa-map-marker-alt"></i> العنوان التفصيلي:</strong> ${order.customerAddress || 'غير محدد'}</div>
             <div><strong><i class="fas fa-credit-card"></i> الدفع:</strong> ${order.paymentMethod}</div>
             <div><strong><i class="fas fa-calendar-alt"></i> التاريخ:</strong> ${new Date(order.date).toLocaleDateString('ar-YE')}</div>
         </div>
@@ -271,6 +273,17 @@ window.viewOrderDetails = (orderId) => {
 
 window.closeOrderModal = () => {
     document.getElementById('orderModal').style.display = 'none';
+};
+
+window.deleteOrder = (orderId) => {
+    if (confirm(`هل أنت متأكد من حذف الطلب #${orderId} نهائياً؟ لا يمكن التراجع عن هذه العملية.`)) {
+        DB.deleteOrder(orderId);
+        loadOrders();
+        loadDashboard();
+        // Close modal if open
+        const modal = document.getElementById('orderModal');
+        if (modal) modal.style.display = 'none';
+    }
 };
 
 document.addEventListener('DOMContentLoaded', initAdmin);

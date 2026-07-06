@@ -1,5 +1,5 @@
 // ============================================================
-// wow-features.js — Phase 5: AI Assistant + Surprise Me + Dark Mode
+// wow-features.js — Phase 5: AI Assistant + Surprise Me + Accessibility
 // ============================================================
 
 // =====================
@@ -32,58 +32,13 @@ window.initDarkMode = () => {
 // AI ASSISTANT CHAT
 // =====================
 const aiKnowledge = {
-    bedrooms: { category: 'bedrooms', label: 'غرفة نوم', emoji: '🛏️', tip: 'للحصول على راحة مثالية، اختاري خشب الماليزي KTS للمتانة.' },
-    sofas: { category: 'sofas', label: 'كنب', emoji: '🛋️', tip: 'الكنب الزاوية المودرن مثالي لغرف المعيشة الواسعة.' },
-    curtains: { category: 'curtains', label: 'ستائر', emoji: '🪟', tip: 'الستائر المخملية تعطي لمسة فخامة لا مثيل لها.' },
-    tables: { category: 'tables', label: 'طاولة', emoji: '🍽️', tip: 'طاولات الرخام على الستيل هي الأكثر شيوعاً في الديكور الفاخر.' },
-    blankets: { category: 'blankets', label: 'لحاف', emoji: '🛌', tip: 'اللحافات المضغوطة خيار ممتاز للتوفير في المساحة.' },
-    wardrobes: { category: 'wardrobes', label: 'دولاب', emoji: '🚪', tip: 'الدواليب التركية توفر تصاميم راقية وعصرية.' },
-    kids: { category: 'kids-bedrooms', label: 'غرفة أطفال', emoji: '🧸', tip: 'غرف الأطفال المزودة بأسرة علوية توفر المساحة وتضيف متعة للأطفال.' },
-};
-
-const aiResponses = {
-    'مرحبا': '👋 أهلاً وسهلاً! أنا مساعدك الشخصي في رونق همدان. كيف يمكنني مساعدتك اليوم?\n\nيمكنني:\n• اقتراح أثاث مناسب لميزانيتك\n• مساعدتك في اختيار غرفتك المثالية\n• الإجابة على أسئلتك عن منتجاتنا',
-    'هلا': '👋 هلا وغلا! كيف أقدر أساعدك في اختيار أثاثك المثالي؟',
-    'السعر': '💰 لدينا تشكيلة واسعة تناسب جميع الميزانيات:\n• الستائر: تبدأ من 120,000 ر.ي\n• الكنب: تبدأ من 850,000 ر.ي\n• غرف النوم: تبدأ من 400,000 ر.ي\n• الطاولات: تبدأ من 450,000 ر.ي\n\nما هي ميزانيتك التقريبية؟',
-    'شحن': '🚚 نوفر توصيل وتركيب مجاني داخل صنعاء! للمناطق الأخرى، تواصل معنا على واتساب.',
-    'ضمان': '🛡️ نقدم ضمانة 10 سنوات كاملة على جميع منتجاتنا، مع ضمان فك وتركيب لأكثر من 20 مرة!',
-    'كنب': '🛋️ لدينا أجمل تشكيلة كنب! من الكنب الزاوية المودرن إلى الأنتريهات الكلاسيكية.\n\nهل تفضل:\n• كنب مودرن عصري\n• كنب كلاسيكي أنيق\n• أنتريه كاملة',
-    'غرفة نوم': '🛏️ تشكيلتنا من غرف النوم رائعة! لدينا:\n• غرف ماليزي KTS فاخرة (7 قطع)\n• غرف سويدي عصرية\n• غرف ملكية بتفاصيل ذهبية\n• غرف أطفال مميزة\n\nأي نوع يناسبك؟',
-    'ستار': '🪟 ستائرنا المخملية والويفي والكلاسيكية ستحول غرفتك! ابدأي التسوق الآن.',
-    'طاولة': '🍽️ طاولاتنا من أجود الخامات:\n• رخام على الستيل\n• زجاج مقسى\n• خشب أصلي\n\nكلها بتصاميم عصرية فاخرة.',
-    'توصيل': '🚚 التوصيل والتركيب مجاني داخل صنعاء 💚',
-    'واتساب': '📱 تواصل معنا مباشرة: wa.me/967771219034',
-};
-
-const getAIResponse = (msg) => {
-    const lower = msg.toLowerCase();
-    for (const key of Object.keys(aiResponses)) {
-        if (lower.includes(key)) return aiResponses[key];
-    }
-    // Category detection
-    for (const key of Object.keys(aiKnowledge)) {
-        if (lower.includes(key) || lower.includes(aiKnowledge[key].label)) {
-            const item = aiKnowledge[key];
-            const products = DB.getProducts().filter(p => p.category === item.category || p.category.startsWith(item.category));
-            if (products.length > 0) {
-                return `${item.emoji} وجدت ${products.length} منتج في قسم ${item.label}!\n\n💡 نصيحة: ${item.tip}\n\nانقر هنا لعرض المنتجات: <a href="shop.html?category=${item.category}" style="color:var(--primary-color); font-weight:bold;">تصفح ${item.label}</a>`;
-            }
-        }
-    }
-    // Budget detection
-    const budgetMatch = msg.match(/(\d[\d,]*)\s*(ريال|ر\.ي|الف|ألف)?/);
-    if (budgetMatch) {
-        const budget = parseInt(budgetMatch[1].replace(/,/g, '')) * (msg.includes('الف') || msg.includes('ألف') ? 1000 : 1);
-        const products = DB.getProducts().filter(p => {
-            const price = p.discount > 0 ? p.price * (1 - p.discount / 100) : p.price;
-            return price <= budget;
-        });
-        if (products.length > 0) {
-            return `✨ وجدت ${products.length} منتج ضمن ميزانيتك!\n\nإليك بعض الخيارات المميزة:\n${products.slice(0, 3).map(p => `• <a href="product.html?id=${p.id}" style="color:var(--primary-color);">${p.name}</a> - ${(p.discount > 0 ? p.price*(1-p.discount/100) : p.price).toLocaleString()} ر.ي`).join('\n')}`;
-        }
-        return `😊 ميزانيتك ${budget.toLocaleString()} ر.ي — سأبحث عن الأنسب لك! تواصل معنا على <a href="https://wa.me/967771219034" target="_blank" style="color:#25D366;">واتساب</a> للمساعدة الشخصية.`;
-    }
-    return '🤔 شكراً لسؤالك! يمكنني مساعدتك في:\n\n• اختيار غرفة النوم المناسبة\n• مقارنة الأسعار والجودة\n• معرفة تفاصيل الشحن والضمان\n• اقتراح أثاث بحسب ميزانيتك\n\nما الذي تبحث عنه تحديداً؟';
+    bedrooms: { category: 'bedrooms', label: 'غرفة نوم', emoji: '🛏️', tip: 'للحصول على راحة مثالية، اختاري خشب الماليزي KTS للمتانة والتحمل.' },
+    sofas: { category: 'sofas', label: 'كنب', emoji: '🛋️', tip: 'الكنب الزاوية المودرن مثالي لغرف المعيشة المفتوحة والواسعة.' },
+    curtains: { category: 'curtains', label: 'ستائر', emoji: '🪟', tip: 'الستائر المخملية تعطي لمسة عزل للضوء وفخامة إضافية.' },
+    tables: { category: 'tables', label: 'طاولة', emoji: '🍽️', tip: 'طاولات الرخام على الستيل هي الأكثر طلباً في الديكورات الراقية.' },
+    blankets: { category: 'blankets', label: 'لحاف', emoji: '🛌', tip: 'اللحافات الفرو الشتوي توفر الدفء الأمثل بجودة ممتازة.' },
+    wardrobes: { category: 'wardrobes', label: 'دولاب', emoji: '🚪', tip: 'الدواليب بتصميم تركي أو سويدي توفر مساحات تقسيم رائعة.' },
+    kids: { category: 'kids-bedrooms', label: 'غرفة أطفال', emoji: '🧸', tip: 'غرف الأطفال بسريرين توفر المساحة وتأتي بتصاميم مبهجة.' },
 };
 
 window.initAIAssistant = () => {
@@ -92,33 +47,26 @@ window.initAIAssistant = () => {
     btn.id = 'aiChatBtn';
     btn.innerHTML = '<i class="fas fa-robot"></i>';
     btn.title = 'مساعد رونق الذكي';
-    btn.style.cssText = `
-        position: fixed; bottom: 185px; left: 25px;
-        width: 55px; height: 55px; border-radius: 50%; border: none;
-        background: linear-gradient(135deg, #8B0000, #8C6239);
-        color: white; font-size: 1.5rem; cursor: pointer; z-index: 999;
-        box-shadow: 0 5px 20px rgba(139,0,0,0.4);
-        transition: all 0.3s;
-        animation: aiPulse 2.5s ease-in-out infinite;
-    `;
     btn.onclick = toggleAIChat;
 
-    // Pulse animation
+    // Pulse animation and general styles for chat window
     const style = document.createElement('style');
     style.textContent = `
         @keyframes aiPulse {
-            0%, 100% { box-shadow: 0 5px 20px rgba(139,0,0,0.4); }
-            50% { box-shadow: 0 5px 30px rgba(139,0,0,0.7), 0 0 0 8px rgba(139,0,0,0.1); }
+            0%, 100% { box-shadow: 0 4px 15px rgba(139,0,0,0.4); }
+            50% { box-shadow: 0 4px 25px rgba(139,0,0,0.7), 0 0 0 8px rgba(139,0,0,0.1); }
         }
         #aiChatWindow {
-            position: fixed; bottom: 250px; left: 25px;
+            position: fixed; bottom: 220px; left: 25px;
             width: 340px; max-height: 480px;
             background: white; border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-            display: none; flex-direction: column; z-index: 1000;
+            display: none; flex-direction: column; z-index: 10001;
             overflow: hidden;
             animation: qvFadeIn 0.3s ease;
             font-family: 'Tajawal', sans-serif;
+            direction: rtl;
+            text-align: right;
         }
         #aiChatWindow.open { display: flex; }
         .ai-header {
@@ -131,7 +79,7 @@ window.initAIAssistant = () => {
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 1.3rem;
         }
-        .ai-header-info h4 { margin: 0; font-size: 1rem; }
+        .ai-header-info h4 { margin: 0; font-size: 1.1rem; font-weight: bold; }
         .ai-header-info p { margin: 0; font-size: 0.75rem; opacity: 0.8; }
         .ai-header-close { margin-right: auto; background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
         .ai-messages {
@@ -164,6 +112,7 @@ window.initAIAssistant = () => {
             background: #f5f5f5; border: 1px solid #ddd; border-radius: 20px;
             padding: 5px 12px; font-size: 0.8rem; cursor: pointer;
             transition: all 0.2s; font-family: 'Tajawal', sans-serif;
+            color: #444;
         }
         .ai-quick-btn:hover { background: var(--primary-color, #8B0000); color: white; border-color: transparent; }
         .ai-input-area {
@@ -180,6 +129,7 @@ window.initAIAssistant = () => {
             color: white; border: none; border-radius: 50%;
             width: 38px; height: 38px; cursor: pointer; font-size: 1rem;
             transition: all 0.2s; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
         }
         .ai-input-area button:hover { transform: scale(1.1); }
         .ai-typing { display: flex; gap: 4px; align-items: center; padding: 10px 14px; }
@@ -209,14 +159,14 @@ window.initAIAssistant = () => {
             <button class="ai-header-close" onclick="toggleAIChat()"><i class="fas fa-times"></i></button>
         </div>
         <div class="ai-messages" id="aiMessages">
-            <div class="ai-bubble bot">👋 مرحباً بك في رونق همدان!\n\nأنا مساعدك الذكي، يمكنني:\n• اقتراح أثاث بحسب ميزانيتك\n• الإجابة على أسئلتك عن المنتجات\n• مساعدتك في تصميم غرفتك المثالية\n\nكيف يمكنني مساعدتك؟</div>
+            <div class="ai-bubble bot">👋 مرحباً بك في رونق همدان!\n\nأنا مساعدك الذكي، كيف يمكنني مساعدتك اليوم؟\n\nيمكنك اختصار الوقت بطلب الردود الجاهزة بالأسفل:</div>
         </div>
         <div class="ai-quick-btns">
             <button class="ai-quick-btn" onclick="sendAIMessage('ما هي أسعاركم؟')">💰 الأسعار</button>
-            <button class="ai-quick-btn" onclick="sendAIMessage('غرفة نوم فاخرة')">🛏️ غرف النوم</button>
-            <button class="ai-quick-btn" onclick="sendAIMessage('كنب مريح')">🛋️ الكنب</button>
-            <button class="ai-quick-btn" onclick="sendAIMessage('الشحن والتوصيل')">🚚 التوصيل</button>
-            <button class="ai-quick-btn" onclick="sendAIMessage('ضمان المنتجات')">🛡️ الضمان</button>
+            <button class="ai-quick-btn" onclick="sendAIMessage('تفصيل الأثاث')">🛠️ تفصيل أثاث</button>
+            <button class="ai-quick-btn" onclick="sendAIMessage('العروض الحالية')">🏷️ عروض وتخفيضات</button>
+            <button class="ai-quick-btn" onclick="sendAIMessage('الشحن والتوصيل للمحافظات')">🚚 التوصيل</button>
+            <button class="ai-quick-btn" onclick="sendAIMessage('ضمان المنتجات')">🛡️ الضمان والخدمة</button>
         </div>
         <div class="ai-input-area">
             <input type="text" id="aiInput" placeholder="اكتب سؤالك هنا..." onkeypress="if(event.key==='Enter') sendAIMessage()">
@@ -230,6 +180,7 @@ window.initAIAssistant = () => {
 
 window.toggleAIChat = () => {
     const win = document.getElementById('aiChatWindow');
+    if (!win) return;
     win.classList.toggle('open');
     if (win.classList.contains('open')) {
         document.getElementById('aiInput')?.focus();
@@ -240,7 +191,7 @@ window.sendAIMessage = (preset = null) => {
     const input = document.getElementById('aiInput');
     const messages = document.getElementById('aiMessages');
     const text = preset || input?.value.trim();
-    if (!text) return;
+    if (!text || !messages) return;
 
     // Add user bubble
     messages.innerHTML += `<div class="ai-bubble user">${text}</div>`;
@@ -258,61 +209,66 @@ window.sendAIMessage = (preset = null) => {
         const response = getAIResponse(text);
         messages.innerHTML += `<div class="ai-bubble bot">${response}</div>`;
         messages.scrollTop = messages.scrollHeight;
-    }, 900);
+    }, 500); // Super fast interactive response
 };
 
 // =====================
-// SURPRISE ME — Build a Complete Room
+// AI CHATBOT LOGIC
 // =====================
-const roomTemplates = {
-    modern: {
-        label: 'غرفة عصرية مودرن',
-        emoji: '🏠',
-        categories: ['bedrooms', 'sofas', 'tables', 'curtains'],
-        description: 'تصميم معاصر يجمع بين البساطة والأناقة.'
-    },
-    classic: {
-        label: 'غرفة كلاسيكية فاخرة',
-        emoji: '👑',
-        categories: ['bedrooms', 'curtains', 'blankets'],
-        description: 'روعة الكلاسيك بلمسة فخامة لا تُقاوم.'
-    },
-    family: {
-        label: 'غرفة عائلية متكاملة',
-        emoji: '👨‍👩‍👧',
-        categories: ['sofas', 'tables', 'curtains', 'kids-bedrooms'],
-        description: 'مساحة دافئة تجمع العائلة بكل راحة وأناقة.'
-    },
-    minimal: {
-        label: 'غرفة مينيمال أنيقة',
-        emoji: '✨',
-        categories: ['bedrooms', 'wardrobes', 'tables'],
-        description: 'أقل هو أكثر — بساطة راقية تمنح راحة البال.'
+const getAIResponse = (msg) => {
+    const lower = msg.toLowerCase();
+    
+    if (lower.includes('مرحبا') || lower.includes('هلا') || lower.includes('السلام')) {
+        return '👋 أهلاً وسهلاً بك في متجر رونق همدان للأثاث! أنا مساعدك الذكي التفاعلي.\nسعيد بخدمتك، يمكنك سؤالي عن الأسعار، تفصيل الأثاث، الضمان، أو الشحن والتوصيل للمحافظات!';
     }
+    if (lower.includes('سعر') || lower.includes('أسعار') || lower.includes('اسعار')) {
+        return '💰 نقدم أفضل الأسعار مقابل الجودة الفاخرة في اليمن:\n• غرف النوم الكبيرة: تبدأ من 400,000 ر.ي\n• أطقم الكنب والمجالس: تبدأ من 850,000 ر.ي\n• طاولات الطعام الفاخرة: تبدأ من 450,000 ر.ي\n• الستائر الفخمة: تبدأ من 120,000 ر.ي\n\nتتوفر عروض تخفيضات رائعة حالياً! ما هو المنتج الذي تود معرفة تفاصيل سعره؟';
+    }
+    if (lower.includes('تفصيل') || lower.includes('فصل') || lower.includes('تصميم') || lower.includes('مجالس') || lower.includes('مجلس')) {
+        return '🛠️ تفصيل حسب الطلب:\nنحن متخصصون في تصميم وتفصيل المجالس العربية والتركية، الكنب، وغرف النوم بمقاسات وألوان مخصصة تناسب رغبتك بالكامل!\nنستخدم أفضل الأخشاب مثل خشب السويد الصلب وخشب ام دي اف الماليزي مع دهان مقاوم للخدش، وأفخم الأقمشة التركية المخملية.\n\nتواصل معنا عبر واتساب لمشاركة المقاسات والموديل المطلوب: wa.me/967771219034';
+    }
+    if (lower.includes('شحن') || lower.includes('توصيل') || lower.includes('محافظات') || lower.includes('صنعاء') || lower.includes('مكان')) {
+        return '🚚 الشحن والتوصيل:\n• التوصيل والتركيب مجاني تماماً داخل العاصمة صنعاء!\n• نوفر شحناً سريعاً وآمناً لجميع محافظات اليمن (عدن، تعز، إب، حضرموت، الحديدة، مأرب، ذمار، إلخ) مع ضمان سلامة القطع عند الاستلام والدفع في نفس الوقت.';
+    }
+    if (lower.includes('ضمان') || lower.includes('كفالة') || lower.includes('الضمان')) {
+        return '🛡️ الضمان الذهبي:\nجميع غرف النوم والأثاث الخشبي لدينا يأتي بضمانة فاتورة رسمية لمدة 10 سنوات ضد العيوب المصنعية، وضمانة فك وتركيب لأكثر من 20 مرة لثقتنا العالية في جودة خاماتنا!';
+    }
+    if (lower.includes('عرض') || lower.includes('العروض') || lower.includes('تخفيض')) {
+        return '🏷️ العروض الحالية:\nلدينا تخفيضات مميزة تصل إلى 30% على منتجات مختارة من الكنب وغرف النوم! يمكنك تصفح قسم العروض الخاصة في الصفحة الرئيسية أو صفحة المتجر لمعرفة المنتجات المشمولة بالخصم.';
+    }
+    if (lower.includes('واتساب') || lower.includes('تواصل') || lower.includes('رقم')) {
+        return '📱 يمكنك التواصل الفوري والتحدث معنا مباشرة مع موظفي المبيعات عبر الواتساب على الرقم: <a href="https://wa.me/967771219034" target="_blank" style="color:#25D366; font-weight:bold;"><i class="fab fa-whatsapp"></i> 771219034</a>';
+    }
+
+    // Category detection dynamic suggestion
+    for (const key of Object.keys(aiKnowledge)) {
+        if (lower.includes(key) || lower.includes(aiKnowledge[key].label)) {
+            const item = aiKnowledge[key];
+            const products = DB.getProducts().filter(p => p.category === item.category || p.category.startsWith(item.category));
+            if (products.length > 0) {
+                return `${item.emoji} لقد وجدت ${products.length} خياراً مميزاً في قسم ${item.label} لدينا!\n\n💡 نصيحة الخبراء: ${item.tip}\n\n👉 يمكنك تصفحها فوراً من هنا: <a href="shop.html?category=${item.category}" style="color:var(--primary-color); font-weight:bold; text-decoration:underline;">عرض قسم ${item.label}</a>`;
+            }
+        }
+    }
+
+    return '🤔 شكراً لاستفسارك! سأقوم بتوجيه سؤالك لفريق الدعم لخدمتك بشكل أفضل. \n\nيمكنك الاتصال بنا مباشرة أو مراسلتنا على واتساب 📱 <a href="https://wa.me/967771219034" target="_blank" style="color:#25D366; font-weight:bold;">771219034</a> للحصول على إجابة تفصيلية وفورية!';
 };
+
+// =====================
+// VIRTUAL ROOM (💡 فكرة الغرفة الافتراضية)
+// =====================
+let selectedRoomItems = {}; // Holds selected product per category/id
 
 window.initSurpriseMe = () => {
+    // Surprise me float button
     const btn = document.createElement('button');
     btn.id = 'surpriseMeBtn';
-    btn.innerHTML = '🎲 فاجئني!';
-    btn.style.cssText = `
-        position: fixed; bottom: 250px; right: 25px;
-        background: linear-gradient(135deg, #8C6239, #8B0000);
-        color: white; border: none; border-radius: 30px;
-        padding: 12px 22px; font-size: 1rem; font-weight: bold;
-        cursor: pointer; z-index: 999;
-        box-shadow: 0 8px 25px rgba(140,98,57,0.4);
-        font-family: 'Tajawal', sans-serif;
-        transition: all 0.3s;
-        writing-mode: vertical-rl;
-        text-orientation: mixed;
-    `;
-    btn.onmouseenter = () => btn.style.transform = 'scale(1.08) translateY(-3px)';
-    btn.onmouseleave = () => btn.style.transform = 'scale(1) translateY(0)';
+    btn.innerHTML = '🎲';
+    btn.title = 'صمم غرفتك الافتراضية (فاجئني)';
     btn.onclick = openSurpriseModal;
     document.body.appendChild(btn);
 
-    // Create modal
+    // Create virtual room modal container
     const modal = document.createElement('div');
     modal.id = 'surpriseModal';
     modal.style.cssText = `
@@ -323,35 +279,15 @@ window.initSurpriseMe = () => {
     `;
     modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
     modal.innerHTML = `
-        <div style="background: white; border-radius: 20px; width: 90%; max-width: 750px;
-                    max-height: 90vh; overflow-y: auto; padding: 40px;
-                    animation: qvFadeIn 0.4s ease; font-family: 'Tajawal', sans-serif;">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <h2 style="font-size: 2rem; color: #333;">🎲 فاجئني! اختر طابع غرفتك</h2>
-                <p style="color: #888;">سنقترح لك تشكيلة متكاملة من أجود منتجاتنا</p>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 30px;">
-                ${Object.entries(roomTemplates).map(([key, t]) => `
-                    <button onclick="generateRoom('${key}')" style="
-                        background: linear-gradient(135deg, #f8f8f8, #efefef);
-                        border: 2px solid #eee; border-radius: 15px; padding: 20px 15px;
-                        cursor: pointer; font-family: 'Tajawal', sans-serif;
-                        transition: all 0.3s; text-align: center;
-                    " onmouseenter="this.style.borderColor='#8B0000'; this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(139,0,0,0.15)'"
-                       onmouseleave="this.style.borderColor='#eee'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                        <div style="font-size: 2.5rem; margin-bottom: 8px;">${t.emoji}</div>
-                        <div style="font-weight: bold; color: #333; font-size: 0.95rem;">${t.label}</div>
-                    </button>
-                `).join('')}
-            </div>
-            <div id="surpriseResult" style="display: none;"></div>
-            <div style="text-align: center; margin-top: 10px;">
-                <button onclick="document.getElementById('surpriseModal').style.display='none'"
-                    style="background: none; border: 1px solid #ddd; border-radius: 25px;
-                           padding: 10px 25px; cursor: pointer; font-family: 'Tajawal', sans-serif; color: #888;">
-                    إغلاق
-                </button>
-            </div>
+        <div style="background: white; border-radius: 20px; width: 95%; max-width: 900px;
+                    max-height: 90vh; overflow-y: auto; padding: 30px;
+                    animation: qvFadeIn 0.4s ease; font-family: 'Tajawal', sans-serif; direction:rtl; position:relative;">
+            <button onclick="document.getElementById('surpriseModal').style.display='none'"
+                style="position:absolute; top:20px; left:20px; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#999; transition:color 0.2s;"
+                onmouseenter="this.style.color='#8B0000'" onmouseleave="this.style.color='#999'">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="surpriseResult"></div>
         </div>
     `;
     document.body.appendChild(modal);
@@ -359,84 +295,380 @@ window.initSurpriseMe = () => {
 
 window.openSurpriseModal = () => {
     document.getElementById('surpriseModal').style.display = 'flex';
-    document.getElementById('surpriseResult').style.display = 'none';
+    renderVirtualRoom();
 };
 
-window.generateRoom = (templateKey) => {
-    const template = roomTemplates[templateKey];
-    const allProducts = DB.getProducts();
-    let totalPrice = 0;
-    let html = `
-        <div style="border-top: 2px solid #f0f0f0; padding-top: 25px;">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <span style="font-size: 2rem;">${template.emoji}</span>
-                <h3 style="color: #333; margin: 10px 0 5px;">${template.label}</h3>
-                <p style="color: #888; font-size: 0.9rem;">${template.description}</p>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
-    `;
+window.renderVirtualRoom = () => {
+    const result = document.getElementById('surpriseResult');
+    if (!result) return;
 
-    const selected = [];
-    template.categories.forEach(cat => {
-        const catProducts = allProducts.filter(p => p.category === cat || p.category.startsWith(cat));
-        if (catProducts.length > 0) {
-            const picked = catProducts[Math.floor(Math.random() * catProducts.length)];
-            selected.push(picked);
-            const price = picked.discount > 0 ? picked.price * (1 - picked.discount / 100) : picked.price;
-            totalPrice += price;
-            html += `
-                <a href="product.html?id=${picked.id}" style="text-decoration:none; color:inherit;">
-                    <div style="border-radius: 12px; overflow: hidden; border: 1px solid #f0f0f0;
-                                box-shadow: 0 4px 12px rgba(0,0,0,0.07); transition: transform 0.3s;"
-                         onmouseenter="this.style.transform='translateY(-5px)'"
-                         onmouseleave="this.style.transform='translateY(0)'">
-                        <img src="${picked.images[0]}" style="width:100%; height:130px; object-fit:cover;" alt="${picked.name}">
-                        <div style="padding: 10px;">
-                            <p style="font-size: 0.85rem; font-weight: bold; color: #333; margin:0 0 5px; height:35px; overflow:hidden;">${picked.name}</p>
-                            <p style="color: #8B0000; font-weight: bold; font-size: 0.9rem; margin:0;">${price.toLocaleString()} ر.ي</p>
-                        </div>
+    const products = DB.getProducts();
+    const categories = DB.getCategories();
+
+    // Check total price
+    let totalPrice = 0;
+    const selectedList = Object.values(selectedRoomItems);
+    selectedList.forEach(p => {
+        const price = p.discount > 0 ? p.price * (1 - p.discount/100) : p.price;
+        totalPrice += price;
+    });
+
+    // Generate room canvas HTML
+    let roomItemsHtml = '';
+    if (selectedList.length === 0) {
+        roomItemsHtml = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 70px 20px; border: 2px dashed #d5c8b3; border-radius: 15px; background: rgba(140, 98, 57, 0.03); color: #8C6239;">
+                <span style="font-size: 3.5rem; display:block; margin-bottom:15px; animation: aiPulse 2s infinite;">🛋️</span>
+                <h4 style="margin-bottom:10px; font-size:1.3rem; font-weight:bold;">رتب غرفتك الآن وتسوق ✨</h4>
+                <p style="color:#777; font-size:0.95rem; margin:0;">اختر قطع الأثاث التي تناسب ذوقك من القائمة اليسرى لتشكل غرفتك الافتراضية هنا وتضيفها بالكامل إلى سلتك بضغطة زر!</p>
+            </div>
+        `;
+    } else {
+        roomItemsHtml = selectedList.map(p => {
+            const price = p.discount > 0 ? p.price * (1 - p.discount/100) : p.price;
+            return `
+                <div style="background: white; border: 1px solid #eee; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position:relative; animation: qvFadeIn 0.3s ease;">
+                    <img src="${p.images[0]}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px;" alt="${p.name}">
+                    <div style="font-size: 0.85rem; font-weight: bold; color: #333; height: 35px; overflow: hidden; line-height: 1.3;">${p.name}</div>
+                    <div style="font-weight: bold; color: var(--primary-color); font-size: 0.95rem;">${price.toLocaleString()} ر.ي</div>
+                    <div style="display: flex; gap: 5px; margin-top: auto; border-top: 1px solid #f5f5f5; padding-top: 8px;">
+                        <button onclick="removeRoomItem('${p.category}')" style="flex:1; background:#ffebeb; color:#e74c3c; border:none; padding:6px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:3px;" title="حذف القطعة"><i class="fas fa-trash-alt"></i> حذف</button>
+                        <button onclick="scrollToCategorySelector('${p.category}')" style="flex:1; background:#f0f5ff; color:#3498db; border:none; padding:6px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:3px;" title="تغيير القطعة"><i class="fas fa-exchange-alt"></i> تغيير</button>
                     </div>
-                </a>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Generate selectors list
+    let catalogHtml = '';
+    categories.forEach(cat => {
+        // Get products belonging to category
+        const catProducts = products.filter(p => p.category === cat.id || p.category.startsWith(cat.id + '-'));
+        if (catProducts.length > 0) {
+            catalogHtml += `
+                <div id="selector-cat-${cat.id}" style="margin-bottom:15px; border:1px solid #eee; border-radius:10px; overflow:hidden; background:white;">
+                    <div style="background:#fcfaf7; padding:10px 15px; font-weight:bold; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; font-size:0.95rem; color:var(--secondary-color);">
+                        <span>📂 ${cat.name}</span>
+                        <span style="font-size:0.8rem; background:#eae2d5; padding:2px 8px; border-radius:10px; color:#555;">${catProducts.length}</span>
+                    </div>
+                    <div style="max-height: 180px; overflow-y:auto; padding:10px; display:flex; flex-direction:column; gap:8px;">
+                        ${catProducts.map(p => {
+                            const isSelected = selectedRoomItems[cat.id]?.id === p.id;
+                            const price = p.discount > 0 ? p.price * (1 - p.discount/100) : p.price;
+                            return `
+                                <div style="display:flex; align-items:center; gap:10px; border-bottom:1px solid #f9f9f9; padding-bottom:8px; justify-content:space-between;">
+                                    <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+                                        <img src="${p.images[0]}" style="width:40px; height:40px; object-fit:cover; border-radius:5px; flex-shrink:0;">
+                                        <div style="min-width:0;">
+                                            <div style="font-size:0.8rem; font-weight:bold; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.name}</div>
+                                            <div style="font-size:0.75rem; color:var(--primary-color); font-weight:bold;">${price.toLocaleString()} ر.ي</div>
+                                        </div>
+                                    </div>
+                                    <button onclick="addRoomItem('${cat.id}', '${p.id}')" style="background:${isSelected ? '#2ecc71' : 'var(--primary-color)'}; color:white; border:none; padding:5px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer; font-weight:bold; flex-shrink:0; display:flex; align-items:center; gap:3px;">
+                                        ${isSelected ? '<i class="fas fa-check"></i> مضاف' : '➕ أضف'}
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
             `;
         }
     });
 
-    html += `</div>
-        <div style="background: linear-gradient(135deg, #f8f8f8, #efefef); border-radius: 15px; padding: 20px; text-align: center;">
-            <p style="font-size: 1rem; color: #666; margin-bottom: 5px;">إجمالي تكلفة الغرفة المقترحة</p>
-            <p style="font-size: 2rem; font-weight: bold; color: #8B0000; margin: 0;">${totalPrice.toLocaleString()} ر.ي</p>
+    result.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="font-size: 1.8rem; color: var(--dark-gray); display:flex; align-items:center; justify-content:center; gap:10px;">
+                <i class="fas fa-magic" style="color:var(--secondary-color)"></i> الغرفة الافتراضية الذكية
+            </h2>
+            <p style="color: #777; font-size: 0.9rem;">قم بتأثيث وتصميم غرفتك المتكاملة بالكامل وشاهد الأسعار مباشرة!</p>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: center;">
-            <button onclick="addRoomToCart(${JSON.stringify(selected.map(p => p.id))})"
-                style="background: #8B0000; color: white; border: none; padding: 12px 30px;
-                       border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer;
-                       font-family: 'Tajawal', sans-serif; transition: all 0.3s;"
-                onmouseenter="this.style.background='#660000'"
-                onmouseleave="this.style.background='#8B0000'">
-                🛒 أضف الكل للسلة
-            </button>
-            <button onclick="generateRoom('${templateKey}')"
-                style="background: #8C6239; color: white; border: none; padding: 12px 25px;
-                       border-radius: 25px; font-size: 1rem; cursor: pointer;
-                       font-family: 'Tajawal', sans-serif; transition: all 0.3s;"
-                onmouseenter="this.style.background='#6b4a2b'"
-                onmouseleave="this.style.background='#8C6239'">
-                🔄 فاجئني مجدداً
-            </button>
-        </div>
-    </div>`;
+        
+        <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <!-- Right Column: Room Canvas -->
+            <div style="background: linear-gradient(135deg, #fdfbf8, #f4eee3); border: 2px solid #e2d7c5; border-radius: 15px; padding: 20px; display: flex; flex-direction: column; min-height:400px; box-shadow: inset 0 0 15px rgba(0,0,0,0.02);">
+                <div style="border-bottom: 1px solid #e2d7c5; padding-bottom: 10px; margin-bottom: 15px; font-weight: bold; color: var(--secondary-color); font-size: 1rem; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-home"></i> لوحة الغرفة الافتراضية
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; flex-grow: 1; align-content: start;" id="virtualRoomCanvas">
+                    ${roomItemsHtml}
+                </div>
+            </div>
 
-    const result = document.getElementById('surpriseResult');
-    result.innerHTML = html;
-    result.style.display = 'block';
-    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            <!-- Left Column: Catalog Selectors -->
+            <div style="max-height: 400px; overflow-y:auto; padding-left:5px;" id="virtualCatalogList">
+                ${catalogHtml}
+            </div>
+        </div>
+
+        <!-- Footer actions and totals -->
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 15px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border:1px solid #eee;">
+            <div>
+                <span style="font-size: 0.85rem; color: #666; display:block;">إجمالي سعر الغرفة:</span>
+                <span style="font-size: 1.8rem; font-weight: bold; color: var(--primary-color);">${totalPrice.toLocaleString()} ر.ي</span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap:wrap;">
+                <button onclick="addVirtualRoomToCart()" ${selectedList.length === 0 ? 'disabled style="opacity:0.5; cursor:not-allowed; background:#999;"' : ''}
+                    style="background: #27ae60; color: white; border: none; padding: 10px 20px;
+                           border-radius: 25px; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+                           font-family: 'Tajawal', sans-serif; transition: all 0.3s; display:flex; align-items:center; gap:6px;">
+                    <i class="fas fa-cart-plus"></i> إضافة الغرفة كاملة للسلة
+                </button>
+                <button onclick="randomizeVirtualRoom()"
+                    style="background: var(--secondary-color); color: white; border: none; padding: 10px 18px;
+                           border-radius: 25px; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+                           font-family: 'Tajawal', sans-serif; transition: all 0.3s; display:flex; align-items:center; gap:5px;">
+                    🎲 تأثيث تلقائي
+                </button>
+                <button onclick="clearVirtualRoom()"
+                    style="background: #e74c3c; color: white; border: none; padding: 10px 18px;
+                           border-radius: 25px; font-size: 0.95rem; font-weight: bold; cursor: pointer;
+                           font-family: 'Tajawal', sans-serif; transition: all 0.3s;">
+                    ❌ تفريغ الغرفة
+                </button>
+            </div>
+        </div>
+    `;
 };
 
-window.addRoomToCart = (productIds) => {
-    productIds.forEach(id => DB.addToCart(id, 1));
+window.addRoomItem = (categoryId, productId) => {
+    const product = DB.getProduct(productId);
+    if (product) {
+        selectedRoomItems[categoryId] = product;
+        renderVirtualRoom();
+        if (window.showToast) showToast(`تمت إضافة ${product.name} إلى غرفتك!`, 'success');
+    }
+};
+
+window.removeRoomItem = (categoryId) => {
+    const p = selectedRoomItems[categoryId];
+    if (p) {
+        delete selectedRoomItems[categoryId];
+        renderVirtualRoom();
+        if (window.showToast) showToast(`تم إزالة ${p.name} من الغرفة!`, 'success');
+    }
+};
+
+window.scrollToCategorySelector = (categoryId) => {
+    const el = document.getElementById(`selector-cat-${categoryId}`);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.border = '2px solid var(--primary-color)';
+        setTimeout(() => {
+            el.style.border = '1px solid #eee';
+        }, 1500);
+    }
+};
+
+window.randomizeVirtualRoom = () => {
+    const products = DB.getProducts();
+    const categories = DB.getCategories();
+    selectedRoomItems = {};
+
+    categories.forEach(cat => {
+        const catProducts = products.filter(p => p.category === cat.id || p.category.startsWith(cat.id + '-'));
+        if (catProducts.length > 0) {
+            const picked = catProducts[Math.floor(Math.random() * catProducts.length)];
+            selectedRoomItems[cat.id] = picked;
+        }
+    });
+
+    renderVirtualRoom();
+    if (window.showToast) showToast('تم تأثيث الغرفة تلقائياً بمنتجات مميزة! 🎲', 'success');
+};
+
+window.clearVirtualRoom = () => {
+    selectedRoomItems = {};
+    renderVirtualRoom();
+    if (window.showToast) showToast('تم تفريغ الغرفة الافتراضية بالكامل.', 'success');
+};
+
+window.addVirtualRoomToCart = () => {
+    const list = Object.values(selectedRoomItems);
+    if (list.length === 0) return;
+
+    list.forEach(p => DB.addToCart(p.id, 1));
+    
     if (window.updateCartCount) window.updateCartCount();
-    if (window.showToast) showToast(`✅ تمت إضافة ${productIds.length} منتجات للسلة!`, 'success');
-    setTimeout(() => { document.getElementById('surpriseModal').style.display = 'none'; }, 1000);
+    if (window.showToast) showToast(`✅ تمت إضافة ${list.length} قطع (غرفة كاملة) إلى السلة!`, 'success');
+
+    // Close modal after brief delay
+    setTimeout(() => {
+        document.getElementById('surpriseModal').style.display = 'none';
+    }, 800);
+};
+
+// =====================
+// ACCESSIBILITY FEATURES
+// =====================
+window.initAccessibility = () => {
+    // Accessibility toggle button
+    const btn = document.createElement('button');
+    btn.id = 'accessibilityBtn';
+    btn.innerHTML = '<i class="fas fa-universal-access"></i>';
+    btn.title = 'خيارات سهولة الوصول للموقع';
+    btn.onclick = toggleAccessibilityMenu;
+    document.body.appendChild(btn);
+
+    // Accessibility Menu Panel
+    const menu = document.createElement('div');
+    menu.id = 'accessibilityMenu';
+    menu.style.cssText = `
+        position: fixed; bottom: 250px; left: -320px;
+        width: 290px; background: white; border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        z-index: 10002; padding: 20px; transition: left 0.4s ease;
+        font-family: 'Tajawal', sans-serif; border: 1px solid #eee;
+        direction: rtl; text-align: right;
+    `;
+    
+    menu.innerHTML = `
+        <h3 style="margin-top:0; border-bottom: 2px solid #3498db; padding-bottom:10px; color:#333; font-size:1.05rem; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fas fa-universal-access"></i> خيارات سهولة الوصول</span>
+            <button onclick="toggleAccessibilityMenu()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:#999;"><i class="fas fa-times"></i></button>
+        </h3>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.85rem; color:#555; font-weight:bold;">حجم الخط</span>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="adjustFontSize(-2)" style="padding:4px 8px; border:1px solid #ccc; background:#f9f9f9; border-radius:5px; cursor:pointer; font-weight:bold;">A-</button>
+                    <button onclick="adjustFontSize(0)" style="padding:4px 8px; border:1px solid #ccc; background:#f9f9f9; border-radius:5px; cursor:pointer; font-size:0.8rem;">افتراضي</button>
+                    <button onclick="adjustFontSize(2)" style="padding:4px 8px; border:1px solid #ccc; background:#f9f9f9; border-radius:5px; cursor:pointer; font-weight:bold;">A+</button>
+                </div>
+            </div>
+            
+            <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; border-top: 1px solid #eee; padding-top: 10px; margin: 0;">
+                <span style="font-size:0.85rem; color:#555; font-weight:bold;">تباين عالي (أصفر وأسود)</span>
+                <input type="checkbox" id="accContrast" onchange="toggleAccClass('accessibility-contrast', this.checked)">
+            </label>
+            
+            <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; border-top: 1px solid #eee; padding-top: 10px; margin: 0;">
+                <span style="font-size:0.85rem; color:#555; font-weight:bold;">خط ميسر للقراءة</span>
+                <input type="checkbox" id="accDyslexia" onchange="toggleAccClass('accessibility-dyslexia', this.checked)">
+            </label>
+            
+            <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; border-top: 1px solid #eee; padding-top: 10px; margin: 0;">
+                <span style="font-size:0.85rem; color:#555; font-weight:bold;">تمييز وإبراز الروابط</span>
+                <input type="checkbox" id="accHighlight" onchange="toggleAccClass('accessibility-highlight-links', this.checked)">
+            </label>
+            
+            <label style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; border-top: 1px solid #eee; padding-top: 10px; margin: 0;">
+                <span style="font-size:0.85rem; color:#555; font-weight:bold;">إيقاف الحركة والأنيميشن</span>
+                <input type="checkbox" id="accAnimations" onchange="toggleAccClass('accessibility-stop-animations', this.checked)">
+            </label>
+            
+            <button onclick="resetAccessibility()" style="width:100%; background:#e74c3c; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; font-weight:bold; margin-top:10px; font-family:'Tajawal',sans-serif;">إعادة تعيين الإعدادات</button>
+        </div>
+    `;
+    
+    // Style adjustments for dark mode
+    const accStyle = document.createElement('style');
+    accStyle.textContent = `
+        body.dark-mode #accessibilityMenu { background: #1e1e1e; border-color: #333; }
+        body.dark-mode #accessibilityMenu h3 { color: #fff; border-color: #444; }
+        body.dark-mode #accessibilityMenu span { color: #ddd; }
+        body.dark-mode #accessibilityMenu button { background: #2a2a2a; border-color: #444; color: #fff; }
+    `;
+    document.head.appendChild(accStyle);
+    document.body.appendChild(menu);
+
+    // Load saved settings
+    loadAccessibilitySettings();
+};
+
+window.toggleAccessibilityMenu = () => {
+    const menu = document.getElementById('accessibilityMenu');
+    if (!menu) return;
+    if (menu.style.left === '25px') {
+        menu.style.left = '-320px';
+    } else {
+        menu.style.left = '25px';
+    }
+};
+
+let currentFontOffset = 0;
+window.adjustFontSize = (offset) => {
+    if (offset === 0) {
+        currentFontOffset = 0;
+    } else {
+        currentFontOffset += offset;
+        // Limit font offsets
+        if (currentFontOffset > 6) currentFontOffset = 6;
+        if (currentFontOffset < -4) currentFontOffset = -4;
+    }
+    
+    document.documentElement.style.fontSize = currentFontOffset === 0 ? '' : `calc(100% + ${currentFontOffset}px)`;
+    localStorage.setItem('acc_font_offset', currentFontOffset);
+};
+
+window.toggleAccClass = (className, enable) => {
+    if (enable) {
+        document.body.classList.add(className);
+    } else {
+        document.body.classList.remove(className);
+    }
+    localStorage.setItem('acc_' + className, enable);
+};
+
+window.resetAccessibility = () => {
+    // Uncheck all
+    document.getElementById('accContrast').checked = false;
+    document.getElementById('accDyslexia').checked = false;
+    document.getElementById('accHighlight').checked = false;
+    document.getElementById('accAnimations').checked = false;
+
+    // Remove all classes
+    document.body.classList.remove('accessibility-contrast');
+    document.body.classList.remove('accessibility-dyslexia');
+    document.body.classList.remove('accessibility-highlight-links');
+    document.body.classList.remove('accessibility-stop-animations');
+
+    // Reset font size
+    document.documentElement.style.fontSize = '';
+    currentFontOffset = 0;
+
+    // Clear localStorage
+    localStorage.removeItem('acc_font_offset');
+    localStorage.removeItem('acc_accessibility-contrast');
+    localStorage.removeItem('acc_accessibility-dyslexia');
+    localStorage.removeItem('acc_accessibility-highlight-links');
+    localStorage.removeItem('acc_accessibility-stop-animations');
+
+    if (window.showToast) showToast('تمت إعادة تعيين إعدادات سهولة الوصول.', 'success');
+};
+
+const loadAccessibilitySettings = () => {
+    const savedOffset = parseInt(localStorage.getItem('acc_font_offset')) || 0;
+    if (savedOffset !== 0) adjustFontSize(savedOffset);
+
+    const contrast = localStorage.getItem('acc_accessibility-contrast') === 'true';
+    if (contrast) {
+        const chk = document.getElementById('accContrast');
+        if (chk) chk.checked = true;
+        toggleAccClass('accessibility-contrast', true);
+    }
+    
+    const dyslexia = localStorage.getItem('acc_accessibility-dyslexia') === 'true';
+    if (dyslexia) {
+        const chk = document.getElementById('accDyslexia');
+        if (chk) chk.checked = true;
+        toggleAccClass('accessibility-dyslexia', true);
+    }
+
+    const highlight = localStorage.getItem('acc_accessibility-highlight-links') === 'true';
+    if (highlight) {
+        const chk = document.getElementById('accHighlight');
+        if (chk) chk.checked = true;
+        toggleAccClass('accessibility-highlight-links', true);
+    }
+
+    const animations = localStorage.getItem('acc_accessibility-stop-animations') === 'true';
+    if (animations) {
+        const chk = document.getElementById('accAnimations');
+        if (chk) chk.checked = true;
+        toggleAccClass('accessibility-stop-animations', true);
+    }
 };
 
 // =====================
@@ -446,4 +678,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
     initAIAssistant();
     initSurpriseMe();
+    initAccessibility();
 });

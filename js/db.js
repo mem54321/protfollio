@@ -266,6 +266,12 @@ window.DB = {
             order.status = status;
             localStorage.setItem('orders', JSON.stringify(orders));
         }
+    },
+
+    deleteOrder: (orderId) => {
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        orders = orders.filter(o => o.id !== orderId);
+        localStorage.setItem('orders', JSON.stringify(orders));
     }
 };
 

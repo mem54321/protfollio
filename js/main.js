@@ -200,99 +200,13 @@ window.generateProductCard = (product) => {
                     <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${product.id}', this)" style="background:#f5f6fa; border:none; padding:10px; border-radius:5px; cursor:pointer; color:${isFav ? '#e74c3c' : '#333'}">
                         <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
                     </button>
-                    <button class="btn-compare" onclick="toggleCompare('${product.id}')" style="background:#f5f6fa; border:none; padding:10px; border-radius:5px; cursor:pointer; color:#3498db" title="مقارنة">
-                        <i class="fas fa-exchange-alt"></i>
-                    </button>
                 </div>
             </div>
         </div>
     `;
 };
 
-// Comparison Logic
-let compareList = [];
 
-window.toggleCompare = (productId) => {
-    const index = compareList.indexOf(productId);
-    if (index > -1) {
-        compareList.splice(index, 1);
-        showToast('تمت الإزالة من المقارنة', 'success');
-    } else {
-        if (compareList.length >= 2) {
-            showToast('يمكنك مقارنة منتجين كحد أقصى', 'error');
-            return;
-        }
-        compareList.push(productId);
-        showToast('تمت الإضافة للمقارنة', 'success');
-    }
-    updateCompareBar();
-};
-
-window.updateCompareBar = () => {
-    let bar = document.getElementById('compareBar');
-    if (!bar) {
-        bar = document.createElement('div');
-        bar.id = 'compareBar';
-        bar.style.cssText = 'position:fixed; bottom:-100px; left:50%; transform:translateX(-50%); background:var(--dark-gray); color:white; padding:15px 30px; border-radius:30px 30px 0 0; display:flex; align-items:center; gap:20px; z-index:10000; transition:bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow:0 -10px 20px rgba(0,0,0,0.2);';
-        document.body.appendChild(bar);
-    }
-    
-    if (compareList.length > 0) {
-        bar.innerHTML = `
-            <span style="font-weight:bold;">تم تحديد ${compareList.length} للمقارنة</span>
-            ${compareList.length === 2 ? `<button onclick="openCompareModal()" style="background:var(--primary-color); color:white; border:none; padding:8px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">قارن الآن</button>` : ''}
-            <button onclick="compareList=[]; updateCompareBar();" style="background:none; border:none; color:#ccc; cursor:pointer; font-size:1.2rem;"><i class="fas fa-times"></i></button>
-        `;
-        bar.style.bottom = '0';
-    } else {
-        bar.style.bottom = '-100px';
-    }
-};
-
-window.openCompareModal = () => {
-    if (compareList.length !== 2) return;
-    const p1 = DB.getProduct(compareList[0]);
-    const p2 = DB.getProduct(compareList[1]);
-    
-    let modal = document.getElementById('compareModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'compareModal';
-        modal.className = 'qv-modal-overlay';
-        modal.onclick = (e) => { if(e.target === modal) modal.style.display = 'none'; };
-        document.body.appendChild(modal);
-    }
-    
-    modal.innerHTML = `
-        <div class="qv-modal-content" style="max-width:800px; flex-direction:column; padding:20px; max-height:90vh; overflow-y:auto;">
-            <button class="qv-close" onclick="document.getElementById('compareModal').style.display='none'"><i class="fas fa-times"></i></button>
-            <h2 style="text-align:center; margin-bottom:20px; color:var(--dark-gray);">مقارنة المنتجات</h2>
-            <table style="width:100%; border-collapse:collapse; text-align:center;">
-                <tr>
-                    <td style="width:50%; padding:10px; border:1px solid #eee;"><img src="${p1.images[0]}" style="width:100%; max-width:200px; border-radius:10px;"></td>
-                    <td style="width:50%; padding:10px; border:1px solid #eee;"><img src="${p2.images[0]}" style="width:100%; max-width:200px; border-radius:10px;"></td>
-                </tr>
-                <tr>
-                    <th style="padding:15px; border:1px solid #eee; font-size:1.2rem;">${p1.name}</th>
-                    <th style="padding:15px; border:1px solid #eee; font-size:1.2rem;">${p2.name}</th>
-                </tr>
-                <tr>
-                    <td style="padding:15px; border:1px solid #eee; color:var(--primary-color); font-weight:bold; font-size:1.1rem;">${(p1.discount > 0 ? p1.price * (1 - p1.discount/100) : p1.price).toLocaleString()} ر.ي</td>
-                    <td style="padding:15px; border:1px solid #eee; color:var(--primary-color); font-weight:bold; font-size:1.1rem;">${(p2.discount > 0 ? p2.price * (1 - p2.discount/100) : p2.price).toLocaleString()} ر.ي</td>
-                </tr>
-                <tr>
-                    <td style="padding:15px; border:1px solid #eee; color:#666;">${p1.category}</td>
-                    <td style="padding:15px; border:1px solid #eee; color:#666;">${p2.category}</td>
-                </tr>
-                <tr>
-                    <td style="padding:15px; border:1px solid #eee;"><button onclick="addToCart('${p1.id}', this)" class="btn-primary" style="padding:8px 20px;">أضف للسلة</button></td>
-                    <td style="padding:15px; border:1px solid #eee;"><button onclick="addToCart('${p2.id}', this)" class="btn-primary" style="padding:8px 20px;">أضف للسلة</button></td>
-                </tr>
-            </table>
-        </div>
-    `;
-    modal.style.display = 'flex';
-};
 
 window.quickView = (productId, event) => {
     event.preventDefault();
@@ -407,6 +321,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof DB !== 'undefined') DB.init();
     updateCartCount();
     if(window.initInstantSearch) window.initInstantSearch();
+
+    // ====== Auto Guest Login ======
+    // إذا لم يكن هناك مستخدم مسجل، قم بإنشاء جلسة زائر تلقائية
+    const storedUser = localStorage.getItem('rawnaq_logged_user');
+    if (!storedUser) {
+        const guestUser = {
+            id: 'guest_' + Date.now(),
+            name: 'زائر',
+            email: '',
+            isGuest: true
+        };
+        localStorage.setItem('rawnaq_logged_user', JSON.stringify(guestUser));
+    }
+    // ==============================
     
     const homepageCheck = document.getElementById('categoryGrid');
     if (homepageCheck) initHomePage();

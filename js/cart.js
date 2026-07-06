@@ -92,9 +92,10 @@ window.sendOrderWhatsApp = () => {
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
+    const governorate = document.getElementById('custGovernorate')?.value.trim() || '';
 
-    if (!name || !phone || !address) {
-        alert('الرجاء تعبئة جميع بيانات التواصل (الاسم، الهاتف، العنوان).');
+    if (!name || !phone || !address || !governorate) {
+        alert('الرجاء تعبئة جميع البيانات الإجبارية (الاسم، الهاتف، العنوان، المحافظة).');
         return;
     }
 
@@ -102,7 +103,8 @@ window.sendOrderWhatsApp = () => {
     message += `👤 *بيانات العميل:*\n`;
     message += `• الاسم: ${name}\n`;
     message += `• الهاتف: ${phone}\n`;
-    message += `• العنوان: ${address}\n\n`;
+    message += `• المحافظة: ${governorate}\n`;
+    message += `• العنوان التفصيلي: ${address}\n\n`;
     message += `📦 *المنتجات المطلوبة:*\n`;
 
     cartItemsDetails.forEach(item => {
@@ -133,20 +135,21 @@ window.sendOrderWhatsApp = () => {
     window.open(whatsappUrl, '_blank');
     
     // Save order to site as well with "WhatsApp" payment method
-    saveOrderToDatabase(name, phone, address, 'واتساب');
+    saveOrderToDatabase(name, phone, address, governorate, 'واتساب');
 };
 
 window.sendOrderToSite = () => {
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
     const address = document.getElementById('custAddress').value.trim();
+    const governorate = document.getElementById('custGovernorate')?.value.trim() || '';
 
-    if (!name || !phone || !address) {
-        alert('الرجاء تعبئة جميع بيانات التواصل (الاسم، الهاتف، العنوان).');
+    if (!name || !phone || !address || !governorate) {
+        alert('الرجاء تعبئة جميع البيانات الإجبارية (الاسم، الهاتف، العنوان، المحافظة).');
         return;
     }
 
-    saveOrderToDatabase(name, phone, address, 'الدفع عند الاستلام');
+    saveOrderToDatabase(name, phone, address, governorate, 'الدفع عند الاستلام');
 
     // Show success message
     document.querySelector('.cart-container').innerHTML = `
@@ -162,11 +165,12 @@ window.sendOrderToSite = () => {
     `;
 };
 
-const saveOrderToDatabase = (name, phone, address, paymentMethod) => {
+const saveOrderToDatabase = (name, phone, address, governorate, paymentMethod) => {
     const orderData = {
         customerName: name,
         customerPhone: phone,
         customerAddress: address,
+        customerGovernorate: governorate,
         paymentMethod: paymentMethod,
         items: cartItemsDetails.map(item => ({
             id: item.id,
