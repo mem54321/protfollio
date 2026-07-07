@@ -84,6 +84,136 @@ const loadProducts = () => {
     }).join('');
 };
 
+const addImagePreview = (src) => {
+    const previewsContainer = document.getElementById('imagesPreviews');
+    
+    const imgWrapper = document.createElement('div');
+    imgWrapper.style.position = 'relative';
+    imgWrapper.style.display = 'inline-block';
+    imgWrapper.style.margin = '5px';
+    
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.width = '70px';
+    img.style.height = '70px';
+    img.style.objectFit = 'cover';
+    img.style.borderRadius = '5px';
+    img.style.border = '1px solid #ddd';
+    
+    const removeBtn = document.createElement('span');
+    removeBtn.innerHTML = '&times;';
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.top = '-5px';
+    removeBtn.style.right = '-5px';
+    removeBtn.style.background = '#e74c3c';
+    removeBtn.style.color = 'white';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.width = '18px';
+    removeBtn.style.height = '18px';
+    removeBtn.style.display = 'flex';
+    removeBtn.style.justifyContent = 'center';
+    removeBtn.style.alignItems = 'center';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.fontSize = '12px';
+    removeBtn.style.fontWeight = 'bold';
+    removeBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    removeBtn.onclick = () => imgWrapper.remove();
+    
+    imgWrapper.appendChild(img);
+    imgWrapper.appendChild(removeBtn);
+    previewsContainer.appendChild(imgWrapper);
+};
+
+window.previewImages = (input) => {
+    if (input.files && input.files.length > 0) {
+        Array.from(input.files).forEach(file => {
+            try {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    addImagePreview(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                console.error("Error reading file:", err);
+            }
+        });
+        // Clear input value so selecting the same file again triggers change event
+        input.value = '';
+    }
+};
+
+const addVideoPreview = (src) => {
+    const videoPreview = document.getElementById('videoPreview');
+    videoPreview.innerHTML = '';
+
+    const vidWrapper = document.createElement('div');
+    vidWrapper.style.position = 'relative';
+    vidWrapper.style.display = 'inline-block';
+    vidWrapper.style.margin = '5px';
+
+    const vid = document.createElement('video');
+    vid.src = src;
+    vid.style.width = '200px';
+    vid.style.borderRadius = '5px';
+    vid.style.border = '1px solid #ddd';
+    vid.controls = true;
+
+    const removeBtn = document.createElement('span');
+    removeBtn.innerHTML = '&times;';
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.top = '-5px';
+    removeBtn.style.right = '-5px';
+    removeBtn.style.background = '#e74c3c';
+    removeBtn.style.color = 'white';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.width = '18px';
+    removeBtn.style.height = '18px';
+    removeBtn.style.display = 'flex';
+    removeBtn.style.justifyContent = 'center';
+    removeBtn.style.alignItems = 'center';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.fontSize = '12px';
+    removeBtn.style.fontWeight = 'bold';
+    removeBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    removeBtn.onclick = () => {
+        vidWrapper.remove();
+        document.getElementById('prodVideoData').value = '';
+        document.getElementById('prodVideoUpload').value = '';
+    };
+
+    vidWrapper.appendChild(vid);
+    vidWrapper.appendChild(removeBtn);
+    videoPreview.appendChild(vidWrapper);
+};
+
+window.previewVideo = (input) => {
+    const videoPreview = document.getElementById('videoPreview');
+    const hiddenInput = document.getElementById('prodVideoData');
+    videoPreview.innerHTML = '';
+    hiddenInput.value = '';
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        if (file.size > 1.5 * 1024 * 1024) {
+            alert('حجم الفيديو كبير جداً! الحد الأقصى المسموح به هو 1.5 ميجابايت.');
+            input.value = '';
+            return;
+        }
+
+        try {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                addVideoPreview(e.target.result);
+                hiddenInput.value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        } catch (err) {
+            console.error("Error reading video file:", err);
+        }
+    }
+};
+
 window.showProductForm = () => {
     document.getElementById('productFormContainer').style.display = 'block';
     document.getElementById('formTitle').innerText = 'إضافة منتج جديد';
@@ -109,65 +239,6 @@ window.hideProductForm = () => {
     document.getElementById('productFormContainer').style.display = 'none';
 };
 
-window.previewImages = (input) => {
-    const previewsContainer = document.getElementById('imagesPreviews');
-    previewsContainer.innerHTML = '';
-    
-    const textarea = document.getElementById('prodImages');
-    textarea.value = '';
-
-    if (input.files && input.files.length > 0) {
-        const base64Promises = Array.from(input.files).map(file => {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '70px';
-                    img.style.height = '70px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = '5px';
-                    previewsContainer.appendChild(img);
-                    resolve(e.target.result);
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-        
-        Promise.all(base64Promises).then(base64Strings => {
-            textarea.value = base64Strings.join('\n');
-        });
-    }
-};
-
-window.previewVideo = (input) => {
-    const videoPreview = document.getElementById('videoPreview');
-    const hiddenInput = document.getElementById('prodVideoData');
-    videoPreview.innerHTML = '';
-    hiddenInput.value = '';
-
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        
-        if (file.size > 1.5 * 1024 * 1024) {
-            alert('حجم الفيديو كبير جداً! الحد الأقصى المسموح به هو 1.5 ميجابايت.');
-            input.value = '';
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const vid = document.createElement('video');
-            vid.src = e.target.result;
-            vid.style.width = '200px';
-            vid.controls = true;
-            videoPreview.appendChild(vid);
-            hiddenInput.value = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-};
-
 window.editProduct = (id) => {
     const product = DB.getProduct(id);
     if (!product) return;
@@ -189,13 +260,7 @@ window.editProduct = (id) => {
     document.getElementById('prodImages').value = product.images ? product.images.join('\n') : '';
     if (product.images) {
         product.images.forEach(imgSrc => {
-            const img = document.createElement('img');
-            img.src = imgSrc;
-            img.style.width = '70px';
-            img.style.height = '70px';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '5px';
-            previewsContainer.appendChild(img);
+            addImagePreview(imgSrc);
         });
     }
 
@@ -213,11 +278,7 @@ window.editProduct = (id) => {
     videoPreview.innerHTML = '';
     document.getElementById('prodVideoData').value = product.video || '';
     if (product.video) {
-        const vid = document.createElement('video');
-        vid.src = product.video;
-        vid.style.width = '200px';
-        vid.controls = true;
-        videoPreview.appendChild(vid);
+        addVideoPreview(product.video);
     }
 };
 
@@ -227,8 +288,6 @@ window.saveProduct = () => {
     const category = document.getElementById('prodCategory').value;
     const price = parseFloat(document.getElementById('prodPrice').value);
     const discount = parseFloat(document.getElementById('prodDiscount').value) || 0;
-    const imagesText = document.getElementById('prodImages').value.trim();
-    const images = imagesText.split('\n').map(img => img.trim()).filter(img => img !== '');
     const description = document.getElementById('prodDesc').value.trim();
     
     const featured = document.getElementById('prodFeatured').checked;
@@ -236,6 +295,17 @@ window.saveProduct = () => {
     const isNew = document.getElementById('prodIsNew').checked;
     const showNewBadge = document.getElementById('prodShowNewBadge').checked;
     const video = document.getElementById('prodVideoData').value;
+
+    // Collect images from DOM previews (both uploaded base64 and pre-existing)
+    const previewImgs = document.querySelectorAll('#imagesPreviews img');
+    let images = Array.from(previewImgs).map(img => img.src);
+
+    // Append manual URL inputs if present
+    const imagesText = document.getElementById('prodImages').value.trim();
+    if (imagesText) {
+        const manualImages = imagesText.split('\n').map(img => img.trim()).filter(img => img !== '');
+        images = [...images, ...manualImages];
+    }
 
     if (!name || !price || images.length === 0 || !description) {
         alert('الرجاء تعبئة جميع الحقول المطلوبة (الاسم، السعر، صورة واحدة على الأقل، والوصف).');
