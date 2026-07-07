@@ -1,5 +1,3 @@
-
-
 const formatPrice = (price) => {
     return new Intl.NumberFormat('ar-YE', { style: 'currency', currency: 'YER' }).format(price);
 };
@@ -70,9 +68,10 @@ const loadProducts = () => {
 
     tbody.innerHTML = products.map(p => {
         const catName = getCategoryName(p.category);
+        const imgSrc = (p.images && p.images.length > 0) ? p.images[0] : 'img/placeholder.jpg';
         return `
             <tr>
-                <td><img src="${p.images[0]}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
+                <td><img src="${imgSrc}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;"></td>
                 <td>${p.name}</td>
                 <td>${catName}</td>
                 <td>${formatPrice(p.price)}</td>
@@ -93,12 +92,80 @@ window.showProductForm = () => {
     document.getElementById('prodPrice').value = '';
     document.getElementById('prodDiscount').value = '0';
     document.getElementById('prodImages').value = '';
+    document.getElementById('prodImagesUpload').value = '';
+    document.getElementById('imagesPreviews').innerHTML = '';
+    document.getElementById('prodVideoUpload').value = '';
+    document.getElementById('videoPreview').innerHTML = '';
+    document.getElementById('prodVideoData').value = '';
     document.getElementById('prodDesc').value = '';
+    
     document.getElementById('prodFeatured').checked = true;
+    document.getElementById('prodOnSale').checked = false;
+    document.getElementById('prodIsNew').checked = false;
+    document.getElementById('prodShowNewBadge').checked = false;
 };
 
 window.hideProductForm = () => {
     document.getElementById('productFormContainer').style.display = 'none';
+};
+
+window.previewImages = (input) => {
+    const previewsContainer = document.getElementById('imagesPreviews');
+    previewsContainer.innerHTML = '';
+    
+    const textarea = document.getElementById('prodImages');
+    textarea.value = '';
+
+    if (input.files && input.files.length > 0) {
+        const base64Promises = Array.from(input.files).map(file => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '70px';
+                    img.style.height = '70px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '5px';
+                    previewsContainer.appendChild(img);
+                    resolve(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        Promise.all(base64Promises).then(base64Strings => {
+            textarea.value = base64Strings.join('\n');
+        });
+    }
+};
+
+window.previewVideo = (input) => {
+    const videoPreview = document.getElementById('videoPreview');
+    const hiddenInput = document.getElementById('prodVideoData');
+    videoPreview.innerHTML = '';
+    hiddenInput.value = '';
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        if (file.size > 1.5 * 1024 * 1024) {
+            alert('حجم الفيديو كبير جداً! الحد الأقصى المسموح به هو 1.5 ميجابايت.');
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const vid = document.createElement('video');
+            vid.src = e.target.result;
+            vid.style.width = '200px';
+            vid.controls = true;
+            videoPreview.appendChild(vid);
+            hiddenInput.value = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 };
 
 window.editProduct = (id) => {
@@ -113,9 +180,45 @@ window.editProduct = (id) => {
     document.getElementById('prodCategory').value = product.category;
     document.getElementById('prodPrice').value = product.price;
     document.getElementById('prodDiscount').value = product.discount || 0;
-    document.getElementById('prodImages').value = product.images.join('\n');
+    
+    // Clear upload inputs & previews
+    document.getElementById('prodImagesUpload').value = '';
+    const previewsContainer = document.getElementById('imagesPreviews');
+    previewsContainer.innerHTML = '';
+    
+    document.getElementById('prodImages').value = product.images ? product.images.join('\n') : '';
+    if (product.images) {
+        product.images.forEach(imgSrc => {
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.style.width = '70px';
+            img.style.height = '70px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '5px';
+            previewsContainer.appendChild(img);
+        });
+    }
+
     document.getElementById('prodDesc').value = product.description;
+    
+    // Checkboxes
     document.getElementById('prodFeatured').checked = product.featured || false;
+    document.getElementById('prodOnSale').checked = product.onSale || false;
+    document.getElementById('prodIsNew').checked = product.isNew || false;
+    document.getElementById('prodShowNewBadge').checked = product.showNewBadge || false;
+    
+    // Video
+    document.getElementById('prodVideoUpload').value = '';
+    const videoPreview = document.getElementById('videoPreview');
+    videoPreview.innerHTML = '';
+    document.getElementById('prodVideoData').value = product.video || '';
+    if (product.video) {
+        const vid = document.createElement('video');
+        vid.src = product.video;
+        vid.style.width = '200px';
+        vid.controls = true;
+        videoPreview.appendChild(vid);
+    }
 };
 
 window.saveProduct = () => {
@@ -127,7 +230,12 @@ window.saveProduct = () => {
     const imagesText = document.getElementById('prodImages').value.trim();
     const images = imagesText.split('\n').map(img => img.trim()).filter(img => img !== '');
     const description = document.getElementById('prodDesc').value.trim();
+    
     const featured = document.getElementById('prodFeatured').checked;
+    const onSale = document.getElementById('prodOnSale').checked;
+    const isNew = document.getElementById('prodIsNew').checked;
+    const showNewBadge = document.getElementById('prodShowNewBadge').checked;
+    const video = document.getElementById('prodVideoData').value;
 
     if (!name || !price || images.length === 0 || !description) {
         alert('الرجاء تعبئة جميع الحقول المطلوبة (الاسم، السعر، صورة واحدة على الأقل، والوصف).');
@@ -142,7 +250,11 @@ window.saveProduct = () => {
         description,
         images: images,
         featured,
-        rating: 5 // Default rating
+        onSale,
+        isNew,
+        showNewBadge,
+        video,
+        rating: 5
     };
 
     if (id) {
@@ -223,7 +335,7 @@ const getStatusClass = (status) => {
 
 window.updateOrderStatus = (orderId, newStatus) => {
     DB.updateOrderStatus(orderId, newStatus);
-    loadOrders(); // Refresh to update badge colors
+    loadOrders();
 };
 
 window.viewOrderDetails = (orderId) => {
@@ -247,8 +359,7 @@ window.viewOrderDetails = (orderId) => {
     `;
 
     order.items.forEach(item => {
-        // Construct product URL
-        const productUrl = `product.html?id=${item.id}`;
+        const productUrl = `product.html?id=${item.productId || item.id}`;
         html += `
             <div class="order-item-row">
                 <a href="${productUrl}" target="_blank" class="order-item-link">
@@ -280,10 +391,16 @@ window.deleteOrder = (orderId) => {
         DB.deleteOrder(orderId);
         loadOrders();
         loadDashboard();
-        // Close modal if open
         const modal = document.getElementById('orderModal');
         if (modal) modal.style.display = 'none';
     }
 };
 
-document.addEventListener('DOMContentLoaded', initAdmin);
+document.addEventListener('DOMContentLoaded', () => {
+    initAdmin();
+    document.addEventListener('db-ready', () => {
+        loadDashboard();
+        loadProducts();
+        loadOrders();
+    });
+});

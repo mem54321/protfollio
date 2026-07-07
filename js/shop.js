@@ -75,7 +75,7 @@ window.applyFilters = () => {
     filteredProducts = baseProducts.filter(p => {
         const price = getFinalPrice(p);
         if (price < minPrice || price > maxPrice) return false;
-        if (isSale && p.discount <= 0) return false;
+        if (isSale && p.discount <= 0 && !p.onSale) return false;
         return true;
     });
 
@@ -140,4 +140,10 @@ const renderProducts = () => {
     }
 };
 
-document.addEventListener('DOMContentLoaded', initShop);
+document.addEventListener('DOMContentLoaded', () => {
+    initShop();
+    document.addEventListener('db-ready', () => {
+        allProducts = DB.getProducts();
+        applyFilters();
+    });
+});

@@ -171,8 +171,12 @@ window.generateProductCard = (product) => {
         : product.price;
 
     let badges = '';
-    if (product.discount > 0) badges += `<div style="background:#e74c3c; color:white; padding:4px 10px; border-radius:5px; margin-bottom:5px; font-size:0.8rem; font-weight:bold;">خصم ${product.discount}%</div>`;
-    else badges += `<div style="background:#2ecc71; color:white; padding:4px 10px; border-radius:5px; margin-bottom:5px; font-size:0.8rem; font-weight:bold;">جديد</div>`;
+    if (product.discount > 0) {
+        badges += `<div style="background:#e74c3c; color:white; padding:4px 10px; border-radius:5px; margin-bottom:5px; font-size:0.8rem; font-weight:bold;">خصم ${product.discount}%</div>`;
+    }
+    if (product.showNewBadge || (product.showNewBadge === undefined && !product.discount)) {
+        badges += `<div style="background:#2ecc71; color:white; padding:4px 10px; border-radius:5px; margin-bottom:5px; font-size:0.8rem; font-weight:bold;">جديد</div>`;
+    }
 
     return `
         <div class="product-card">
@@ -283,16 +287,16 @@ const initHomePage = () => {
     const saleGrid = document.getElementById('saleProducts');
     if (saleGrid) {
         const allProducts = DB.getProducts();
-        const saleProducts = allProducts.filter(p => p.discount > 0).slice(0, 4);
+        const saleProducts = allProducts.filter(p => p.discount > 0 || p.onSale).slice(0, 4);
         saleGrid.innerHTML = saleProducts.map(generateProductCard).join('');
-        // Hide sale section if no sale products
         if (saleProducts.length === 0) saleGrid.parentElement.style.display = 'none';
     }
 
     const newGrid = document.getElementById('newProducts');
     if (newGrid) {
         const allProducts = DB.getProducts();
-        const newProducts = allProducts.slice(0, 4); // newest first (array is reversed in DB)
+        const flaggedNew = allProducts.filter(p => p.isNew);
+        const newProducts = flaggedNew.length > 0 ? flaggedNew.slice(0, 4) : allProducts.slice(0, 4);
         newGrid.innerHTML = newProducts.map(generateProductCard).join('');
     }
 };
@@ -323,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(window.initInstantSearch) window.initInstantSearch();
 
     // ====== Auto Guest Login ======
-    // إذا لم يكن هناك مستخدم مسجل، قم بإنشاء جلسة زائر تلقائية
     const storedUser = localStorage.getItem('rawnaq_logged_user');
     if (!storedUser) {
         const guestUser = {
@@ -348,8 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialize Scroll Animations
     if(window.initScrollAnimations) window.initScrollAnimations();
+
+    document.addEventListener('db-ready', () => {
+        updateCartCount();
+        if (homepageCheck) initHomePage();
+    });
 });
 
 // Loader Logic

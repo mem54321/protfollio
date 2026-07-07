@@ -1,9 +1,5 @@
-﻿// firebase-config.js - Placeholder for actual Firebase configuration
-// To use Firebase, add your config here and initialize
-// import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-// import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-const firebaseConfig = {
+// firebase-config.js - Configuration for Firebase
+window.firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_AUTH_DOMAIN",
   projectId: "YOUR_PROJECT_ID",
@@ -12,8 +8,5 @@ const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
-// const app = initializeApp(firebaseConfig);
-// export const db = getFirestore(app);
-
-// We are using local DB.js for now so the app works immediately.
-export const isFirebaseEnabled = false;
+// Set to true if you have filled out your actual Firebase credentials above to enable cloud storage
+window.isFirebaseEnabled = false;

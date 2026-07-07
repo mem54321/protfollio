@@ -1,4 +1,4 @@
-// db.js - LocalStorage based Database to simulate Firebase for immediate use
+// db.js - LocalStorage based Database with Hybrid Firebase Firestore synchronization
 const defaultProducts = [
     {
         id: "p_room_malaysian_1",
@@ -162,6 +162,55 @@ window.DB = {
         if (!localStorage.getItem('orders')) {
             localStorage.setItem('orders', JSON.stringify([]));
         }
+
+        // Asynchronous Firebase initialization and sync
+        if (window.isFirebaseEnabled && typeof firebase !== 'undefined' && window.firebaseConfig && window.firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(window.firebaseConfig);
+                }
+                window.firestoreDb = firebase.firestore();
+                
+                // Fetch products from firestore and update local cache
+                window.firestoreDb.collection('products').get().then(snapshot => {
+                    if (!snapshot.empty) {
+                        const products = [];
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (!data.id) data.id = doc.id;
+                            products.push(data);
+                        });
+                        localStorage.setItem('products', JSON.stringify(products));
+                    } else {
+                        // Upload default products if Firestore is empty
+                        const batch = window.firestoreDb.batch();
+                        defaultProducts.forEach(p => {
+                            const ref = window.firestoreDb.collection('products').doc(p.id);
+                            batch.set(ref, p);
+                        });
+                        batch.commit();
+                    }
+                    
+                    // Fetch orders
+                    return window.firestoreDb.collection('orders').get();
+                }).then(orderSnapshot => {
+                    const orders = [];
+                    orderSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (!data.id) data.id = doc.id;
+                        orders.push(data);
+                    });
+                    localStorage.setItem('orders', JSON.stringify(orders));
+                    
+                    // Dispatch sync ready event
+                    document.dispatchEvent(new CustomEvent('db-ready'));
+                }).catch(err => {
+                    console.error("Firebase sync error:", err);
+                });
+            } catch (e) {
+                console.error("Firebase initialization failed:", e);
+            }
+        }
     },
 
     getProducts: () => {
@@ -183,21 +232,33 @@ window.DB = {
 
     saveProduct: (product) => {
         const products = JSON.parse(localStorage.getItem('products')) || [];
-        if (product.id) {
-            const index = products.findIndex(p => p.id === product.id);
-            if (index > -1) products[index] = product;
-            else products.push(product);
-        } else {
+        if (!product.id) {
             product.id = 'p' + Date.now();
-            products.push(product);
         }
+        
+        const index = products.findIndex(p => p.id === product.id);
+        if (index > -1) products[index] = product;
+        else products.push(product);
+        
         localStorage.setItem('products', JSON.stringify(products));
+
+        // Sync write to Firestore
+        if (window.isFirebaseEnabled && window.firestoreDb) {
+            window.firestoreDb.collection('products').doc(product.id).set(product)
+                .catch(err => console.error("Error saving product to Firestore:", err));
+        }
     },
 
     deleteProduct: (id) => {
         let products = JSON.parse(localStorage.getItem('products')) || [];
         products = products.filter(p => p.id !== id);
         localStorage.setItem('products', JSON.stringify(products));
+
+        // Sync delete from Firestore
+        if (window.isFirebaseEnabled && window.firestoreDb) {
+            window.firestoreDb.collection('products').doc(id).delete()
+                .catch(err => console.error("Error deleting product from Firestore:", err));
+        }
     },
 
     getCart: () => JSON.parse(localStorage.getItem('cart')),
@@ -254,6 +315,12 @@ window.DB = {
         };
         orders.push(newOrder);
         localStorage.setItem('orders', JSON.stringify(orders));
+
+        // Sync write to Firestore
+        if (window.isFirebaseEnabled && window.firestoreDb) {
+            window.firestoreDb.collection('orders').doc(newOrder.id).set(newOrder)
+                .catch(err => console.error("Error saving order to Firestore:", err));
+        }
         return newOrder.id;
     },
 
@@ -265,6 +332,12 @@ window.DB = {
         if (order) {
             order.status = status;
             localStorage.setItem('orders', JSON.stringify(orders));
+
+            // Sync write to Firestore
+            if (window.isFirebaseEnabled && window.firestoreDb) {
+                window.firestoreDb.collection('orders').doc(orderId).update({ status: status })
+                    .catch(err => console.error("Error updating order status:", err));
+            }
         }
     },
 
@@ -272,6 +345,12 @@ window.DB = {
         let orders = JSON.parse(localStorage.getItem('orders')) || [];
         orders = orders.filter(o => o.id !== orderId);
         localStorage.setItem('orders', JSON.stringify(orders));
+
+        // Sync delete from Firestore
+        if (window.isFirebaseEnabled && window.firestoreDb) {
+            window.firestoreDb.collection('orders').doc(orderId).delete()
+                .catch(err => console.error("Error deleting order from Firestore:", err));
+        }
     }
 };
 

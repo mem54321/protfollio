@@ -1,3 +1,4 @@
+let currentProduct = null;
 
 const initProductPage = () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -19,13 +20,23 @@ const initProductPage = () => {
 };
 
 const renderProductDetail = (product) => {
+    currentProduct = product;
     const wrapper = document.getElementById('productDetailWrapper');
     const finalPrice = product.discount > 0 ? product.price * (1 - (product.discount / 100)) : product.price;
     const stars = '★'.repeat(Math.floor(product.rating)) + '☆'.repeat(5 - Math.floor(product.rating));
 
-    const imagesHtml = product.images.map((img, index) => `
-        <img src="${img}" loading="lazy" class="thumbnail ${index === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)" alt="صورة ${index + 1}">
+    let imagesHtml = product.images.map((img, index) => `
+        <img src="${img}" loading="lazy" class="thumbnail ${index === 0 ? 'active' : ''}" onclick="changeMainMedia('image', '${img}', this)" alt="صورة ${index + 1}">
     `).join('');
+
+    if (product.video) {
+        imagesHtml += `
+            <div class="thumbnail video-thumbnail" onclick="changeMainMedia('video', '${product.video}', this)" style="display: inline-flex; width: 80px; height: 80px; justify-content: center; align-items: center; background: #000; color: #fff; position: relative; border-radius: 5px; cursor: pointer; overflow: hidden; vertical-align: top;">
+                <i class="fas fa-play" style="font-size: 1.2rem; z-index: 2;"></i>
+                <video src="${product.video}" style="position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; pointer-events: none;"></video>
+            </div>
+        `;
+    }
 
     // Fetch related products (same category)
     const allProducts = DB.getProducts();
@@ -45,10 +56,10 @@ const renderProductDetail = (product) => {
     wrapper.innerHTML = `
         <div class="product-detail-container">
             <div class="product-gallery">
-                <div class="main-image-container" onmousemove="zoomImage(event, this)">
+                <div class="main-image-container" id="mainProductMediaContainer" onmousemove="zoomImage(event, this)">
                     <img src="${product.images[0]}" id="mainProductImage" class="main-image" alt="${product.name}">
                 </div>
-                <div class="thumbnail-list" style="margin-top:15px; overflow-x:auto;">
+                <div class="thumbnail-list" style="margin-top:15px; display: flex; gap: 10px; overflow-x:auto;">
                     ${imagesHtml}
                 </div>
             </div>
@@ -63,19 +74,18 @@ const renderProductDetail = (product) => {
                     ` : ''}
                 </div>
                 <div class="product-desc-detail">
-                    ${product.description.replace(/
-/g, '<br>')}
+                    ${product.description.replace(/\n/g, '<br>')}
                 </div>
                 
                 <div class="add-to-cart-group" style="display:flex; flex-wrap:wrap; gap: 10px;">
                     <input type="number" id="buyQty" class="quantity-input" value="1" min="1" style="width: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                    <button class="btn-add-cart-large" onclick="addToCart('${product.id}', this)" style="flex:1; background:var(--dark-gray); color:white; border:none; padding:15px; border-radius:5px; cursor:pointer; font-weight:bold; font-size:1.1rem; transition: background 0.3s;">
+                    <button class="btn-add-cart-large" onclick="addToCart('${product.id}', this)" style="flex:1; background:var(--dark-gray); color:white; border:none; padding:15px; border-radius:5px; cursor:pointer; font-weight:bold; font-size:1.1rem; transition: background 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <i class="fas fa-shopping-cart"></i> أضف للسلة
                     </button>
-                    <button class="btn-buy-now" onclick="buyNow('${product.id}', this)" style="flex:1; background:var(--primary-color); color:white; border:none; padding:15px; border-radius:5px; cursor:pointer; font-weight:bold; font-size:1.1rem; transition: background 0.3s;">
+                    <button class="btn-buy-now" onclick="buyNow('${product.id}', this)" style="flex:1; background:var(--primary-color); color:white; border:none; padding:15px; border-radius:5px; cursor:pointer; font-weight:bold; font-size:1.1rem; transition: background 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px;">
                         <i class="fas fa-bolt"></i> شراء سريع
                     </button>
-                    <button class="btn-share" onclick="shareProduct('${product.id}')" title="مشاركة">
+                    <button class="btn-share" onclick="shareProduct('${product.id}')" title="مشاركة" style="background:#f1f2f6; color:#333; border:none; height:50px; padding:0 20px; font-size:1.2rem; border-radius:5px; cursor:pointer; transition:var(--transition);">
                         <i class="fas fa-share-alt"></i>
                     </button>
                 </div>
@@ -136,6 +146,24 @@ const renderProductDetail = (product) => {
     `;
 };
 
+window.changeMainMedia = (type, src, thumb) => {
+    const container = document.getElementById('mainProductMediaContainer');
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    thumb.classList.add('active');
+
+    if (type === 'video') {
+        container.innerHTML = `
+            <video src="${src}" class="main-image" controls autoplay style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;"></video>
+        `;
+        container.onmousemove = null;
+    } else {
+        container.innerHTML = `
+            <img src="${src}" id="mainProductImage" class="main-image" alt="${currentProduct ? currentProduct.name : ''}">
+        `;
+        container.onmousemove = (e) => zoomImage(e, container);
+    }
+};
+
 window.switchTab = (tabId, btn) => {
     document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(el => {
@@ -159,7 +187,7 @@ window.buyNow = (id, btnElement) => {
     addToCart(id, btnElement);
     setTimeout(() => {
         window.location.href = 'cart.html';
-    }, 800); // Wait for animation
+    }, 800);
 };
 
 window.shareProduct = (id) => {
@@ -175,7 +203,6 @@ window.shareProduct = (id) => {
     }
 };
 
-
 window.changeMainImage = (src, thumb) => {
     document.getElementById('mainProductImage').src = src;
     document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
@@ -183,7 +210,8 @@ window.changeMainImage = (src, thumb) => {
 };
 
 window.addToCart = (id, btnElement) => {
-    const qty = parseInt(document.getElementById('buyQty').value);
+    const qtyInput = document.getElementById('buyQty');
+    const qty = qtyInput ? parseInt(qtyInput.value) : 1;
     DB.addToCart(id, qty);
     showToast('تمت إضافة المنتج إلى السلة بنجاح!');
     
@@ -194,8 +222,12 @@ window.addToCart = (id, btnElement) => {
         }
     }
 
-    // Update global cart count
     if (window.updateCartCount) window.updateCartCount();
 };
 
-document.addEventListener('DOMContentLoaded', initProductPage);
+document.addEventListener('DOMContentLoaded', () => {
+    initProductPage();
+    document.addEventListener('db-ready', () => {
+        initProductPage();
+    });
+});
