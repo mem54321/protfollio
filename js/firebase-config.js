@@ -1,12 +1,12 @@
 // firebase-config.js - Configuration for Firebase
 window.firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAd6_kBNqg_KFzgOEcTkZJU5PBSmyhe_A4",
+  authDomain: "rawnaq-hamdan.firebaseapp.com",
+  projectId: "rawnaq-hamdan",
+  storageBucket: "rawnaq-hamdan.firebasestorage.app",
+  messagingSenderId: "182749597495",
+  appId: "1:182749597495:web:e2b194a3c5585c5be654b2"
 };
 
-// Set to true if you have filled out your actual Firebase credentials above to enable cloud storage
-window.isFirebaseEnabled = false;
+// Firebase is now enabled - data will sync to cloud for all devices
+window.isFirebaseEnabled = true;
