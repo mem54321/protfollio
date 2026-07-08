@@ -170,6 +170,9 @@ window.DB = {
                     firebase.initializeApp(window.firebaseConfig);
                 }
                 window.firestoreDb = firebase.firestore();
+                if (firebase.storage) {
+                    window.firebaseStorage = firebase.storage();
+                }
                 
                 // Fetch products from firestore and update local cache
                 window.firestoreDb.collection('products').get().then(snapshot => {

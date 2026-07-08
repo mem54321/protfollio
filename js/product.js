@@ -30,10 +30,23 @@ const renderProductDetail = (product) => {
     `).join('');
 
     if (product.video) {
+        let youtubeId = '';
+        const src = product.video;
+        if (src.includes('youtube.com') || src.includes('youtu.be')) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = src.match(regExp);
+            if (match && match[2].length === 11) {
+                youtubeId = match[2];
+            }
+        }
+
         imagesHtml += `
             <div class="thumbnail video-thumbnail" onclick="changeMainMedia('video', '${product.video}', this)" style="display: inline-flex; width: 80px; height: 80px; justify-content: center; align-items: center; background: #000; color: #fff; position: relative; border-radius: 5px; cursor: pointer; overflow: hidden; vertical-align: top;">
                 <i class="fas fa-play" style="font-size: 1.2rem; z-index: 2;"></i>
-                <video src="${product.video}" style="position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; pointer-events: none;"></video>
+                ${youtubeId 
+                    ? `<img src="https://img.youtube.com/vi/${youtubeId}/0.jpg" style="position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.6; pointer-events: none;">`
+                    : `<video src="${product.video}" style="position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; pointer-events: none;"></video>`
+                }
             </div>
         `;
     }
@@ -152,9 +165,24 @@ window.changeMainMedia = (type, src, thumb) => {
     thumb.classList.add('active');
 
     if (type === 'video') {
-        container.innerHTML = `
-            <video src="${src}" class="main-image" controls autoplay style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;"></video>
-        `;
+        let youtubeId = '';
+        if (src.includes('youtube.com') || src.includes('youtu.be')) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = src.match(regExp);
+            if (match && match[2].length === 11) {
+                youtubeId = match[2];
+            }
+        }
+
+        if (youtubeId) {
+            container.innerHTML = `
+                <iframe src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" class="main-image" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 400px; border-radius: 10px; object-fit: cover;"></iframe>
+            `;
+        } else {
+            container.innerHTML = `
+                <video src="${src}" class="main-image" controls autoplay style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;"></video>
+            `;
+        }
         container.onmousemove = null;
     } else {
         container.innerHTML = `

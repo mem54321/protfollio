@@ -84,13 +84,98 @@ const loadProducts = () => {
     }).join('');
 };
 
-const addImagePreview = (src) => {
+// Image compression helper using Canvas
+const compressImage = (file, maxWidth = 1000, maxHeight = 1000, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Export as JPEG with quality compression
+                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                resolve(dataUrl);
+            };
+            img.onerror = (err) => reject(err);
+            img.src = event.target.result;
+        };
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+    });
+};
+
+// Firebase Storage file upload helper
+const uploadFileToFirebaseStorage = async (file, folder = 'products') => {
+    if (window.isFirebaseEnabled && typeof firebase !== 'undefined' && window.firebaseStorage) {
+        try {
+            const fileName = `${Date.now()}_${file.name}`;
+            const fileRef = window.firebaseStorage.ref().child(`${folder}/${fileName}`);
+            const snapshot = await fileRef.put(file);
+            const downloadURL = await snapshot.ref.getDownloadURL();
+            return downloadURL;
+        } catch (error) {
+            console.warn("Firebase Storage upload failed:", error);
+            throw error;
+        }
+    }
+    throw new Error("Firebase Storage is not enabled or loaded.");
+};
+
+const createPlaceholderPreview = () => {
     const previewsContainer = document.getElementById('imagesPreviews');
     
-    const imgWrapper = document.createElement('div');
-    imgWrapper.style.position = 'relative';
-    imgWrapper.style.display = 'inline-block';
-    imgWrapper.style.margin = '5px';
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
+    wrapper.style.margin = '5px';
+    wrapper.style.width = '70px';
+    wrapper.style.height = '70px';
+    wrapper.style.borderRadius = '5px';
+    wrapper.style.border = '1px dashed #999';
+    wrapper.style.background = '#f5f6fa';
+    wrapper.style.display = 'flex';
+    wrapper.style.justifyContent = 'center';
+    wrapper.style.alignItems = 'center';
+    
+    const spinner = document.createElement('i');
+    spinner.className = 'fas fa-spinner fa-spin';
+    spinner.style.color = 'var(--primary-color)';
+    spinner.style.fontSize = '1.5rem';
+    
+    wrapper.appendChild(spinner);
+    previewsContainer.appendChild(wrapper);
+    return wrapper;
+};
+
+const fillPlaceholderPreview = (wrapper, src) => {
+    wrapper.innerHTML = '';
+    wrapper.style.border = '1px solid #ddd';
+    wrapper.style.background = 'none';
+    wrapper.style.width = '70px';
+    wrapper.style.height = '70px';
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
     
     const img = document.createElement('img');
     img.src = src;
@@ -98,7 +183,6 @@ const addImagePreview = (src) => {
     img.style.height = '70px';
     img.style.objectFit = 'cover';
     img.style.borderRadius = '5px';
-    img.style.border = '1px solid #ddd';
     
     const removeBtn = document.createElement('span');
     removeBtn.innerHTML = '&times;';
@@ -117,47 +201,112 @@ const addImagePreview = (src) => {
     removeBtn.style.fontSize = '12px';
     removeBtn.style.fontWeight = 'bold';
     removeBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-    removeBtn.onclick = () => imgWrapper.remove();
+    removeBtn.onclick = () => wrapper.remove();
     
-    imgWrapper.appendChild(img);
-    imgWrapper.appendChild(removeBtn);
-    previewsContainer.appendChild(imgWrapper);
+    wrapper.appendChild(img);
+    wrapper.appendChild(removeBtn);
 };
 
-window.previewImages = (input) => {
+const addImagePreview = (src) => {
+    const previewsContainer = document.getElementById('imagesPreviews');
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
+    wrapper.style.margin = '5px';
+    fillPlaceholderPreview(wrapper, src);
+    previewsContainer.appendChild(wrapper);
+};
+
+window.previewImages = async (input) => {
     if (input.files && input.files.length > 0) {
-        Array.from(input.files).forEach(file => {
+        const filesArray = Array.from(input.files);
+        input.value = ''; // Clear value so same files trigger change
+        
+        for (const file of filesArray) {
+            const wrapper = createPlaceholderPreview();
             try {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    addImagePreview(e.target.result);
-                };
-                reader.readAsDataURL(file);
+                // Try uploading to Firebase Storage first
+                const downloadURL = await uploadFileToFirebaseStorage(file, 'products');
+                fillPlaceholderPreview(wrapper, downloadURL);
             } catch (err) {
-                console.error("Error reading file:", err);
+                console.log("Storage upload failed, falling back to local compression...", err);
+                try {
+                    // Fallback to client-side compressed base64
+                    const compressedBase64 = await compressImage(file, 1000, 1000, 0.7);
+                    fillPlaceholderPreview(wrapper, compressedBase64);
+                } catch (compressErr) {
+                    console.error("Compression also failed:", compressErr);
+                    wrapper.remove();
+                    alert("فشل رفع أو ضغط الصورة: " + file.name);
+                }
             }
-        });
-        // Clear input value so selecting the same file again triggers change event
-        input.value = '';
+        }
     }
 };
 
-const addVideoPreview = (src) => {
+const createVideoPlaceholder = () => {
     const videoPreview = document.getElementById('videoPreview');
     videoPreview.innerHTML = '';
+    
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
+    wrapper.style.margin = '5px';
+    wrapper.style.width = '200px';
+    wrapper.style.height = '120px';
+    wrapper.style.borderRadius = '5px';
+    wrapper.style.border = '1px dashed #999';
+    wrapper.style.background = '#f5f6fa';
+    wrapper.style.display = 'flex';
+    wrapper.style.justifyContent = 'center';
+    wrapper.style.alignItems = 'center';
+    
+    const spinner = document.createElement('i');
+    spinner.className = 'fas fa-spinner fa-spin';
+    spinner.style.color = 'var(--primary-color)';
+    spinner.style.fontSize = '2rem';
+    
+    wrapper.appendChild(spinner);
+    videoPreview.appendChild(wrapper);
+    return wrapper;
+};
 
-    const vidWrapper = document.createElement('div');
-    vidWrapper.style.position = 'relative';
-    vidWrapper.style.display = 'inline-block';
-    vidWrapper.style.margin = '5px';
-
-    const vid = document.createElement('video');
-    vid.src = src;
-    vid.style.width = '200px';
-    vid.style.borderRadius = '5px';
-    vid.style.border = '1px solid #ddd';
-    vid.controls = true;
-
+const fillVideoPreview = (wrapper, src) => {
+    wrapper.innerHTML = '';
+    wrapper.style.border = '1px solid #ddd';
+    wrapper.style.background = 'none';
+    wrapper.style.width = 'auto';
+    wrapper.style.height = 'auto';
+    wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
+    
+    let youtubeId = '';
+    if (src.includes('youtube.com') || src.includes('youtu.be')) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = src.match(regExp);
+        if (match && match[2].length === 11) {
+            youtubeId = match[2];
+        }
+    }
+    
+    if (youtubeId) {
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube.com/embed/${youtubeId}`;
+        iframe.style.width = '200px';
+        iframe.style.height = '120px';
+        iframe.style.borderRadius = '5px';
+        iframe.frameBorder = '0';
+        iframe.allowFullscreen = true;
+        wrapper.appendChild(iframe);
+    } else {
+        const vid = document.createElement('video');
+        vid.src = src;
+        vid.style.width = '200px';
+        vid.style.borderRadius = '5px';
+        vid.controls = true;
+        wrapper.appendChild(vid);
+    }
+    
     const removeBtn = document.createElement('span');
     removeBtn.innerHTML = '&times;';
     removeBtn.style.position = 'absolute';
@@ -176,17 +325,17 @@ const addVideoPreview = (src) => {
     removeBtn.style.fontWeight = 'bold';
     removeBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
     removeBtn.onclick = () => {
-        vidWrapper.remove();
+        wrapper.remove();
         document.getElementById('prodVideoData').value = '';
         document.getElementById('prodVideoUpload').value = '';
+        const urlInput = document.getElementById('prodVideoUrl');
+        if (urlInput) urlInput.value = '';
     };
-
-    vidWrapper.appendChild(vid);
-    vidWrapper.appendChild(removeBtn);
-    videoPreview.appendChild(vidWrapper);
+    
+    wrapper.appendChild(removeBtn);
 };
 
-window.previewVideo = (input) => {
+window.previewVideo = async (input) => {
     const videoPreview = document.getElementById('videoPreview');
     const hiddenInput = document.getElementById('prodVideoData');
     videoPreview.innerHTML = '';
@@ -195,22 +344,42 @@ window.previewVideo = (input) => {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         
-        if (file.size > 1.5 * 1024 * 1024) {
-            alert('حجم الفيديو كبير جداً! الحد الأقصى المسموح به هو 1.5 ميجابايت.');
+        // Restrict size to 10MB
+        const maxLimit = 10 * 1024 * 1024;
+        if (file.size > maxLimit) {
+            alert('حجم الفيديو كبير جداً! الحد الأقصى المسموح به هو 10 ميجابايت.');
             input.value = '';
             return;
         }
 
+        const wrapper = createVideoPlaceholder();
         try {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                addVideoPreview(e.target.result);
-                hiddenInput.value = e.target.result;
-            };
-            reader.readAsDataURL(file);
+            const downloadURL = await uploadFileToFirebaseStorage(file, 'videos');
+            fillVideoPreview(wrapper, downloadURL);
+            hiddenInput.value = downloadURL;
         } catch (err) {
-            console.error("Error reading video file:", err);
+            console.error("Video storage upload failed:", err);
+            wrapper.remove();
+            alert('عذراً، فشل رفع الفيديو إلى السحابة. قد يكون بسبب قيود الأمان أو عدم تفعيل التخزين السحابي في Firebase. يرجى إدخال رابط فيديو خارجي (مثل يوتيوب) في الأسفل.');
+            input.value = '';
         }
+    }
+};
+
+window.updateVideoFromUrl = (url) => {
+    const hiddenInput = document.getElementById('prodVideoData');
+    hiddenInput.value = url.trim();
+    
+    const videoPreview = document.getElementById('videoPreview');
+    videoPreview.innerHTML = '';
+    
+    if (url.trim() !== '') {
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.margin = '5px';
+        fillVideoPreview(wrapper, url.trim());
+        videoPreview.appendChild(wrapper);
     }
 };
 
@@ -227,6 +396,8 @@ window.showProductForm = () => {
     document.getElementById('prodVideoUpload').value = '';
     document.getElementById('videoPreview').innerHTML = '';
     document.getElementById('prodVideoData').value = '';
+    const urlInput = document.getElementById('prodVideoUrl');
+    if (urlInput) urlInput.value = '';
     document.getElementById('prodDesc').value = '';
     
     document.getElementById('prodFeatured').checked = true;
@@ -277,8 +448,19 @@ window.editProduct = (id) => {
     const videoPreview = document.getElementById('videoPreview');
     videoPreview.innerHTML = '';
     document.getElementById('prodVideoData').value = product.video || '';
+    
+    const urlInput = document.getElementById('prodVideoUrl');
+    if (urlInput) {
+        urlInput.value = product.video || '';
+    }
+    
     if (product.video) {
-        addVideoPreview(product.video);
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.margin = '5px';
+        fillVideoPreview(wrapper, product.video);
+        videoPreview.appendChild(wrapper);
     }
 };
 

@@ -411,6 +411,11 @@
                                 onchange="previewVideo(this)" style="padding: 8px;">
                             <div id="videoPreview" style="margin-top:10px;"></div>
                             <input type="hidden" id="prodVideoData">
+                            <!-- Fallback for YouTube or external links -->
+                            <details style="margin-top:10px;">
+                                <summary style="cursor:pointer; color:#666; font-size:0.85rem;">أو أدخل رابط فيديو خارجي (يوتيوب أو رابط مباشر)</summary>
+                                <input type="text" id="prodVideoUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=... أو رابط مباشر .mp4" style="margin-top:8px;" onchange="updateVideoFromUrl(this.value)">
+                            </details>
                         </div>
 
                         <div class="form-group" style="grid-column: 1 / -1;">
@@ -508,6 +513,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/db.js"></script>
     <script src="js/admin.js"></script>
