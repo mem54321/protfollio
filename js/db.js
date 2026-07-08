@@ -176,14 +176,30 @@ window.DB = {
                 
                 // Fetch products from firestore and update local cache
                 window.firestoreDb.collection('products').get().then(snapshot => {
+                    // Get current local products
+                    const localProducts = JSON.parse(localStorage.getItem('products')) || [];
+                    
                     if (!snapshot.empty) {
-                        const products = [];
+                        const firestoreProducts = [];
                         snapshot.forEach(doc => {
                             const data = doc.data();
                             if (!data.id) data.id = doc.id;
-                            products.push(data);
+                            firestoreProducts.push(data);
                         });
-                        localStorage.setItem('products', JSON.stringify(products));
+                        
+                        // MERGE: start with Firestore products as base
+                        const merged = [...firestoreProducts];
+                        
+                        // Keep local-only products (those with base64 images or not yet synced to Firestore)
+                        localProducts.forEach(localProd => {
+                            const existsInFirestore = firestoreProducts.some(fp => fp.id === localProd.id);
+                            if (!existsInFirestore) {
+                                // This product is local-only (e.g. has base64 image), keep it
+                                merged.push(localProd);
+                            }
+                        });
+                        
+                        localStorage.setItem('products', JSON.stringify(merged));
                     } else {
                         // Upload default products if Firestore is empty
                         const batch = window.firestoreDb.batch();
@@ -245,8 +261,12 @@ window.DB = {
         
         localStorage.setItem('products', JSON.stringify(products));
 
-        // Sync write to Firestore
-        if (window.isFirebaseEnabled && window.firestoreDb) {
+        // Check if any image is base64 (too large for Firestore's 1MB doc limit)
+        const hasBase64Images = product.images && product.images.some(img => img && img.startsWith('data:'));
+        const hasBase64Video = product.video && product.video.startsWith('data:');
+        
+        // Sync write to Firestore only if no base64 data (Firestore has 1MB limit per document)
+        if (window.isFirebaseEnabled && window.firestoreDb && !hasBase64Images && !hasBase64Video) {
             window.firestoreDb.collection('products').doc(product.id).set(product)
                 .catch(err => console.error("Error saving product to Firestore:", err));
         }

@@ -225,14 +225,15 @@ window.previewImages = async (input) => {
         for (const file of filesArray) {
             const wrapper = createPlaceholderPreview();
             try {
-                // Try uploading to Firebase Storage first
+                // Try uploading to Firebase Storage first (gives permanent URL, no size limit)
                 const downloadURL = await uploadFileToFirebaseStorage(file, 'products');
                 fillPlaceholderPreview(wrapper, downloadURL);
             } catch (err) {
                 console.log("Storage upload failed, falling back to local compression...", err);
                 try {
-                    // Fallback to client-side compressed base64
-                    const compressedBase64 = await compressImage(file, 1000, 1000, 0.7);
+                    // Fallback: compress heavily so it fits in localStorage (max 5MB total)
+                    // Use 800px max & quality 0.5 → each image ~40-70KB
+                    const compressedBase64 = await compressImage(file, 800, 800, 0.5);
                     fillPlaceholderPreview(wrapper, compressedBase64);
                 } catch (compressErr) {
                     console.error("Compression also failed:", compressErr);
@@ -513,11 +514,20 @@ window.saveProduct = () => {
         product.id = id;
     }
 
-    DB.saveProduct(product);
-    hideProductForm();
-    loadProducts();
-    loadDashboard();
-    alert('تم حفظ المنتج بنجاح!');
+    try {
+        DB.saveProduct(product);
+        hideProductForm();
+        loadProducts();
+        loadDashboard();
+        alert('✅ تم حفظ المنتج بنجاح!');
+    } catch (e) {
+        if (e.name === 'QuotaExceededError' || (e.code && e.code === 22)) {
+            alert('⚠️ عذراً، الذاكرة المحلية للمتصفح ممتلئة!\n\nالحل: قلل عدد الصور في هذا المنتج، أو استخدم روابط صور خارجية (URL) بدلاً من رفع الصور مباشرة من الجهاز.');
+        } else {
+            alert('حدث خطأ أثناء الحفظ: ' + e.message);
+        }
+        console.error("Error saving product:", e);
+    }
 };
 
 window.deleteProduct = (id) => {
