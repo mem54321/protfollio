@@ -220,26 +220,19 @@ const addImagePreview = (src) => {
 window.previewImages = async (input) => {
     if (input.files && input.files.length > 0) {
         const filesArray = Array.from(input.files);
-        input.value = ''; // Clear value so same files trigger change
+        input.value = ''; // Clear so same file can be selected again
         
         for (const file of filesArray) {
             const wrapper = createPlaceholderPreview();
             try {
-                // Try uploading to Firebase Storage first (gives permanent URL, no size limit)
-                const downloadURL = await uploadFileToFirebaseStorage(file, 'products');
-                fillPlaceholderPreview(wrapper, downloadURL);
-            } catch (err) {
-                console.log("Storage upload failed, falling back to local compression...", err);
-                try {
-                    // Fallback: compress heavily so it fits in localStorage (max 5MB total)
-                    // Use 800px max & quality 0.5 → each image ~40-70KB
-                    const compressedBase64 = await compressImage(file, 800, 800, 0.5);
-                    fillPlaceholderPreview(wrapper, compressedBase64);
-                } catch (compressErr) {
-                    console.error("Compression also failed:", compressErr);
-                    wrapper.remove();
-                    alert("فشل رفع أو ضغط الصورة: " + file.name);
-                }
+                // Compress directly using canvas - fast, reliable, no auth needed
+                // 800px max dimensions, 50% quality → ~40-70KB per image
+                const compressedBase64 = await compressImage(file, 800, 800, 0.5);
+                fillPlaceholderPreview(wrapper, compressedBase64);
+            } catch (compressErr) {
+                console.error("Compression failed:", compressErr);
+                wrapper.remove();
+                alert("فشل معالجة الصورة: " + file.name);
             }
         }
     }
@@ -336,7 +329,7 @@ const fillVideoPreview = (wrapper, src) => {
     wrapper.appendChild(removeBtn);
 };
 
-window.previewVideo = async (input) => {
+window.previewVideo = (input) => {
     const videoPreview = document.getElementById('videoPreview');
     const hiddenInput = document.getElementById('prodVideoData');
     videoPreview.innerHTML = '';
@@ -345,25 +338,28 @@ window.previewVideo = async (input) => {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         
-        // Restrict size to 10MB
-        const maxLimit = 10 * 1024 * 1024;
+        // Max 15MB for local video
+        const maxLimit = 15 * 1024 * 1024;
         if (file.size > maxLimit) {
-            alert('حجم الفيديو كبير جداً! الحد الأقصى المسموح به هو 10 ميجابايت.');
             input.value = '';
+            alert('⚠️ حجم الفيديو كبير جداً!\n\nالحل: استخدم خيار "رابط فيديو خارجي" بالأسفل وضع رابط الفيديو من يوتيوب.');
             return;
         }
 
+        // Show spinner while loading
         const wrapper = createVideoPlaceholder();
-        try {
-            const downloadURL = await uploadFileToFirebaseStorage(file, 'videos');
-            fillVideoPreview(wrapper, downloadURL);
-            hiddenInput.value = downloadURL;
-        } catch (err) {
-            console.error("Video storage upload failed:", err);
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            hiddenInput.value = e.target.result;
+            fillVideoPreview(wrapper, e.target.result);
+        };
+        reader.onerror = () => {
             wrapper.remove();
-            alert('عذراً، فشل رفع الفيديو إلى السحابة. قد يكون بسبب قيود الأمان أو عدم تفعيل التخزين السحابي في Firebase. يرجى إدخال رابط فيديو خارجي (مثل يوتيوب) في الأسفل.');
             input.value = '';
-        }
+            alert('فشل قراءة ملف الفيديو، يرجى المحاولة بملف آخر.');
+        };
+        reader.readAsDataURL(file);
     }
 };
 
