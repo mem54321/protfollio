@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اتصل بنا - رونق همدان للأثاث</title>
+    <meta name="description" content="متجر رونق همدان لبيع الأثاث الفاخر في اليمن.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .contact-container {
+            display: flex;
+            padding: 60px 5%;
+            gap: 50px;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-info h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .info-item i {
+            font-size: 1.8rem;
+            width: 40px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .fa-map-marker-alt { color: #d9534f; }
+        .fa-phone { color: #5cb85c; }
+        .fa-envelope { color: #f0ad4e; }
+        .fa-facebook { color: #3b5998; }
+        .fa-instagram { color: #e1306c; }
+        .fa-whatsapp { color: #25D366; }
+
+        .contact-form {
+            flex: 1;
+            background: var(--gray-color);
+            padding: 40px;
+            border-radius: 10px;
+        }
+
+        .contact-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .contact-form .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        @media (max-width: 768px) {
+            .contact-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Global Loader -->
+    <div id="globalLoader" class="global-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <img src="img/logo.jpg" alt="شعار" class="logo-img"> رونق <span>همدان</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">الرئيسية</a></li>
+            <li><a href="shop.html">المتجر</a></li>
+            <li><a href="about.html">من نحن</a></li>
+            <li><a href="contact.html" style="color: var(--primary-color); font-weight: bold;">اتصل بنا</a></li>
+
+        </ul>
+        <div class="nav-icons">
+            <a href="login.html"><i class="far fa-user"></i></a>
+            <a href="wishlist.html"><i class="far fa-heart"></i></a>
+            <a href="cart.html" style="position: relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div style="background: var(--dark-gray); color: var(--white); text-align: center; padding: 20px 10px; border-bottom: 2px solid var(--primary-color);">
+        <h1 style="color: var(--secondary-color); font-size: 2rem; margin-bottom: 5px;">تواصل معنا</h1>
+    </div>
+
+    <div class="contact-container">
+        <div class="contact-info">
+            <h2>نحن هنا لخدمتك</h2>
+            <p style="margin-bottom: 30px; color: #666; font-size: 1.1rem;">سعداء بتواصلكم معنا والإجابة على جميع
+                استفساراتكم. يمكنكم التواصل معنا عبر القنوات التالية:</p>
+
+            <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                    <strong>العنوان:</strong><br>
+                    صنعاء، اليمن
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-phone"></i>
+                <div>
+                    <strong>رقم الهاتف (واتساب):</strong><br>
+                    +967 771219034
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-envelope"></i>
+                <div>
+                    <strong>البريد الإلكتروني:</strong><br>
+                    roneghamdan@gmail.com
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fab fa-facebook" style="color: #3b5998;"></i>
+                <div>
+                    <strong>فيسبوك:</strong><br>
+                    @rong_hamd1
+                </div>
+            </div>
+            <div class="info-item">
+                <i class="fab fa-instagram" style="color: #e1306c;"></i>
+                <div>
+                    <strong>إنستقرام:</strong><br>
+                    @rong_hamd1
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <h3 style="margin-bottom: 15px;">تابعنا على الشبكات الاجتماعية</h3>
+                <div style="display: flex; gap: 15px; font-size: 1.5rem;">
+                    <a href="https://www.facebook.com/rong_hamd1" target="_blank" style="color: #3b5998;"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/rong_hamd1" target="_blank" style="color: #e1306c;"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/967771219034" target="_blank" style="color: #25D366;"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h3 style="margin-bottom: 20px; color: var(--primary-color);">📩 إرسال رسالة مباشرة عبر واتساب</h3>
+            <p style="margin-bottom: 20px; color: #666; font-size: 0.95rem;">📱 سيتم فتح واتساب مع رسالتك جاهزة للإرسال مباشرة لفريق المبيعات!</p>
+            <form onsubmit="sendContactWhatsApp(event)">
+                <div class="form-group">
+                    <input type="text" id="contactName" class="form-control" placeholder="الاسم الكامل *" required>
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="contactPhone" class="form-control" placeholder="رقم الهاتف *" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="contactEmail" class="form-control" placeholder="البريد الإلكتروني (اختياري)">
+                </div>
+                <div class="form-group">
+                    <textarea id="contactMessage" class="form-control" rows="5" placeholder="اكتب رسالتك هنا..." required></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.1rem; padding: 15px;">
+                    <i class="fab fa-whatsapp"></i> إرسال عبر واتساب
+                </button>
+            </form>
+            <script>
+                function sendContactWhatsApp(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('contactName').value.trim();
+                    const phone = document.getElementById('contactPhone').value.trim();
+                    const email = document.getElementById('contactEmail').value.trim();
+                    const message = document.getElementById('contactMessage').value.trim();
+
+                    let wa = '📩 *رسالة جديدة من موقع رونق همدان*\n\n';
+                    wa += `👤 *الاسم:* ${name}\n`;
+                    wa += `📱 *الهاتف:* ${phone}\n`;
+                    if (email) wa += `📧 *البريد:* ${email}\n`;
+                    wa += `\n💬 *الرسالة:*\n${message}`;
+
+                    const url = `https://wa.me/967771219034?text=${encodeURIComponent(wa)}`;
+                    window.open(url, '_blank');
+                }
+            </script>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-bottom" style="text-align:center; padding: 20px; color:white;">
+            <p>&copy; 2024 جميع الحقوق محفوظة لمتجر رونق همدان للأثاث.</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">تصميم وتطوير: مرام الطرماح | واتساب: <a
+                    href="https://wa.me/967779965992" style="color: var(--secondary-color);" dir="ltr">+967779965992</a>
+                | البريد الإلكتروني: <a href="mailto:hussinmemo33@gmail.com"
+                    style="color: var(--secondary-color);">hussinmemo33@gmail.com</a></p>
+        </div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/wow-features.js"></script>
+
+    <!-- Floating Buttons -->
+    <a href="https://wa.me/967771219034" target="_blank" class="float-whatsapp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <button id="backToTop" class="float-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+</body>
+
+</html>

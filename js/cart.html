@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سلة المشتريات - رونق همدان للأثاث</title>
+    <meta name="description" content="متجر رونق همدان لبيع الأثاث الفاخر في اليمن.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cart-container {
+            display: flex;
+            padding: 50px 5%;
+            gap: 40px;
+            background: var(--gray-color);
+            min-height: 60vh;
+        }
+
+        .cart-items-section {
+            flex: 2;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+            gap: 20px;
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-size: 1.2rem;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+        }
+
+        .cart-item-price {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            background: #eee;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qty-btn:hover {
+            background: #ddd;
+        }
+
+        .btn-remove {
+            color: #ff4d4d;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .btn-remove:hover {
+            color: #cc0000;
+        }
+
+        .cart-summary-section {
+            flex: 1;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: var(--dark-gray);
+        }
+
+        .summary-total {
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .customer-form {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--dark-gray);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        .btn-whatsapp:hover { background-color: #1ebe57; transform: translateY(-2px); }
+
+        .btn-site-order {
+            background-color: var(--primary-color);
+            color: white;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        .btn-site-order:hover { background-color: #660000; transform: translateY(-2px); }
+
+        .order-divider {
+            text-align: center;
+            color: #999;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            position: relative;
+        }
+        .order-divider::before, .order-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #ddd;
+        }
+        .order-divider::before { right: 0; }
+        .order-divider::after { left: 0; }
+
+        @media (max-width: 768px) {
+            .cart-container {
+                flex-direction: column;
+            }
+
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Global Loader -->
+    <div id="globalLoader" class="global-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <img src="img/logo.jpg" alt="شعار" class="logo-img"> رونق <span>همدان</span>
+        </a>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="ابحث عن منتج...">
+            <button class="nav-icons" style="background:none; border:none"><i class="fas fa-search"></i></button>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">الرئيسية</a></li>
+            <li><a href="shop.html">المتجر</a></li>
+            <li><a href="about.html">من نحن</a></li>
+            <li><a href="contact.html">اتصل بنا</a></li>
+        </ul>
+        <div class="nav-icons">
+            <a href="login.html"><i class="far fa-user"></i></a>
+            <a href="wishlist.html"><i class="far fa-heart"></i></a>
+            <a href="cart.html" style="position: relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </a>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div style="background: var(--dark-gray); color: var(--white); text-align: center; padding: 30px 20px;">
+        <h1 style="color: var(--secondary-color); font-size: 2.5rem;">سلة المشتريات</h1>
+    </div>
+
+    <!-- Cart Content -->
+    <div class="cart-container">
+        <div class="cart-items-section" id="cartItemsList">
+            <!-- Cart Items Injected via JS -->
+        </div>
+
+        <div class="cart-summary-section">
+            <h3 style="margin-bottom: 20px; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px;">ملخص
+                الطلب</h3>
+            <div id="cartSummary">
+                <!-- Summary Injected via JS -->
+            </div>
+
+            <div class="customer-form" id="customerForm" style="display: none;">
+                <h4 style="margin-bottom: 15px;">بيانات العميل (لإرسال الطلب)</h4>
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="custName" class="form-control" placeholder="أدخل اسمك" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="custPhone" class="form-control" placeholder="مثال: 771234567" required>
+                </div>
+                <div class="form-group">
+                    <label>العنوان بالتفصيل</label>
+                    <textarea id="custAddress" class="form-control" rows="2" placeholder="الحي، الشارع..."
+                        required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>المحافظة <span style="color:red;">*</span></label>
+                    <select id="custGovernorate" class="form-control" required>
+                        <option value="">-- اختر المحافظة --</option>
+                        <option value="صنعاء (العاصمة)">صنعاء (العاصمة) 🏙️</option>
+                        <option value="عدن">عدن</option>
+                        <option value="تعز">تعز</option>
+                        <option value="إب">إب</option>
+                        <option value="الحديدة">الحديدة</option>
+                        <option value="حضرموت">حضرموت</option>
+                        <option value="مأرب">مأرب</option>
+                        <option value="ذمار">ذمار</option>
+                        <option value="صعدة">صعدة</option>
+                        <option value="البيضاء">البيضاء</option>
+                        <option value="حجة">حجة</option>
+                        <option value="الجوف">الجوف</option>
+                        <option value="المحويت">المحويت</option>
+                        <option value="ريمة">ريمة</option>
+                        <option value="شبوة">شبوة</option>
+                        <option value="المهرة">المهرة</option>
+                        <option value="أبين">أبين</option>
+                        <option value="لحج">لحج</option>
+                        <option value="الضالع">الضالع</option>
+                        <option value="عمران">عمران</option>
+                        <option value="سقطرى">سقطرى</option>
+                    </select>
+                </div>
+                <!-- خيار 1: واتساب -->
+                <button class="btn-whatsapp" onclick="sendOrderWhatsApp()">
+                    <i class="fab fa-whatsapp"></i> إرسال عبر واتساب
+                </button>
+                <p style="text-align: center; font-size: 0.85rem; color: #666; margin: 5px 0;">سيتم فتح واتساب لإتمام الطلب</p>
+
+                <div class="order-divider">أو</div>
+
+                <!-- خيار 2: حفظ في الموقع -->
+                <button class="btn-site-order" onclick="sendOrderToSite()">
+                    <i class="fas fa-store"></i> تأكيد الطلب عبر الموقع
+                </button>
+                <p style="text-align: center; font-size: 0.85rem; color: #666; margin: 5px 0;">سيتم حفظ طلبك وسيتصل بك فريقنا</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-bottom" style="text-align:center; padding: 20px; color:white;">
+            <p>&copy; 2024 جميع الحقوق محفوظة لمتجر رونق همدان للأثاث.</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">تصميم وتطوير: مرام الطرماح | واتساب: <a
+                    href="https://wa.me/967779965992" style="color: var(--secondary-color);" dir="ltr">+967779965992</a>
+                | البريد الإلكتروني: <a href="mailto:hussinmemo33@gmail.com"
+                    style="color: var(--secondary-color);">hussinmemo33@gmail.com</a></p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/wow-features.js"></script>
+
+    <!-- Floating Buttons -->
+    <a href="https://wa.me/967771219034" target="_blank" class="float-whatsapp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <button id="backToTop" class="float-top" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+</body>
+
+</html>
